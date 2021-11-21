@@ -104,7 +104,8 @@ export const deleteFlight = async (req, res) => {
       .findByIdAndRemove(req.body._id)
       .catch((err) => res.status(400).json("Invalid Flight!"))
       .then(() => res.json("Flight Removed!"));
-  } else {
+  } 
+  else {
     res.status(400).json("Invalid Input!");
   }
 };

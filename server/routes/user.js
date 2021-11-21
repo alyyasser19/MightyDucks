@@ -11,5 +11,8 @@ router.post('/add', addUser );
 router.post('/update', updateUser);
 router.post('/delete', deleteUser);
 router.post('/search', searchUsers);
+<<<<<<< HEAD
 
+=======
+>>>>>>> e61913c996bceda4a1bc749c8df87e17925056d3
 export default router;
