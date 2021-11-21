@@ -133,11 +133,7 @@ export const deleteUser = async(req, res) =>{
 };
 
 export const searchUsers = async (req, res) => {
-<<<<<<< HEAD
     if (req.body.Email || req.body.Username || req.body.homeAddress|| req.body.coutryCode || req.body.passportNumber || req.body.Password || req.body.Type || req.body.firstName || req.body.lastName || req.body.dateOfBirth ||req.body.flightNumbers || req.body._id) {
-=======
-    if (req.body.from || req.body.to || req.body.flightNumber|| req.body.arrivalTime || req.body.departureTime|| req.body.seatsAvailableEco || req.body.seatsAvailableBus || req.body.seatsAvailableFirst || req.body._id) {
->>>>>>> e61913c996bceda4a1bc749c8df87e17925056d3
       const filteredUsers = await user
         .find(req.body)
         .catch((err) => res.status(404).send("No Users found"));
@@ -148,8 +144,4 @@ export const searchUsers = async (req, res) => {
     }else{
       res.status(400).json("Invalid Input!");
     }
-<<<<<<< HEAD
   };
-=======
-  };
->>>>>>> e61913c996bceda4a1bc749c8df87e17925056d3
