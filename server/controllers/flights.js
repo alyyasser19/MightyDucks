@@ -82,7 +82,9 @@ export const updateFlight = async (req, res) => {
               updatedValues += key + " ";
             }
 
-            res.status(200).json("updated values: " + updatedValues);
+            updatedVlues = updatedVlues.slice(0, -2) + ".";
+            updatedVlues = updatedVlues.slice(4);
+            res.status(200).json("updated values: " + updatedVlues)
           })
 
           .catch((err) => res.status(400).json("Error: " + err));
@@ -102,7 +104,8 @@ export const deleteFlight = async (req, res) => {
       .findByIdAndRemove(req.body._id)
       .catch((err) => res.status(400).json("Invalid Flight!"))
       .then(() => res.json("Flight Removed!"));
-  } else {
+  } 
+  else {
     res.status(400).json("Invalid Input!");
   }
 };

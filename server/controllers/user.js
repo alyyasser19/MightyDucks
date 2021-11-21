@@ -40,7 +40,7 @@ export const addUser= async(req, res) => {
 };
 export const updateUser= async(req, res) => {
    
-    user.findById(req.body.id)
+    user.findById(req.body._id)
 
     .then(user => {
         
@@ -122,7 +122,26 @@ export const getUser =  async(req, res) => {
 };
 
 export const deleteUser = async(req, res) =>{
-    user.findByIdAndRemove(req.body.id)
+    if (req.body._id){
+    user.findByIdAndRemove(req.body._id)
+    .catch((err) => res.status(400).json("Invalid User!"))
     .then(() => res.json('User Removed!'))
-    .catch(err => res.status(400).json('Error: ' + err));
+    }
+    else{
+        res.status(400).json("Invalid Input!");
+    }
 };
+
+export const searchUsers = async (req, res) => {
+    if (req.body.from || req.body.to || req.body.flightNumber|| req.body.arrivalTime || req.body.departureTime|| req.body.seatsAvailableEco || req.body.seatsAvailableBus || req.body.seatsAvailableFirst || req.body._id) {
+      const filteredUsers = await user
+        .find(req.body)
+        .catch((err) => res.status(404).send("No Users found"));
+      if (filteredUsers.length === 0) {
+        res.status(404).send("No Users found");
+      }
+      res.status(200).send(filteredUsers);
+    }else{
+      res.status(400).json("Invalid Input!");
+    }
+  };
