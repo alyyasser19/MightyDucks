@@ -76,13 +76,15 @@ export const updateFlight = async (req, res) => {
           .save()
 
           .then(() => {
-            var updatedValues = "";
+            var updatedVlues = "";
 
             for (var key in req.body) {
-              updatedValues += key + " ";
+              updatedVlues += key + ", ";
             }
 
-            res.status(200).json("updated values: " + updatedValues);
+            updatedVlues = updatedVlues.slice(0, -2) + ".";
+            updatedVlues = updatedVlues.slice(4);
+            res.status(200).json("updated values: " + updatedVlues)
           })
 
           .catch((err) => res.status(400).json("Error: " + err));
