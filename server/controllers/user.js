@@ -40,7 +40,7 @@ export const addUser= async(req, res) => {
 };
 export const updateUser= async(req, res) => {
    
-    user.findById(req.body.id)
+    user.findById(req.body._id)
 
     .then(user => {
         
@@ -100,10 +100,10 @@ export const updateUser= async(req, res) => {
             var updatedVlues="";
             
             for (var key in req.body) { 
-                updatedVlues+=key + " ";
+                updatedVlues+=key + ", ";
             }
-
-                
+            updatedVlues = updatedVlues.slice(0, -2) + ".";
+            updatedVlues = updatedVlues.slice(4);
             res.status(200).json("updated values: " + updatedVlues)
          
             })
@@ -122,7 +122,26 @@ export const getUser =  async(req, res) => {
 };
 
 export const deleteUser = async(req, res) =>{
-    user.findByIdAndRemove(req.body.id)
+    if (req.body._id){
+    user.findByIdAndRemove(req.body._id)
+    .catch((err) => res.status(400).json("Invalid User!"))
     .then(() => res.json('User Removed!'))
-    .catch(err => res.status(400).json('Error: ' + err));
+    }
+    else{
+        res.status(400).json("Invalid Input!");
+    }
 };
+
+export const searchUsers = async (req, res) => {
+    if (req.body.Email || req.body.Username || req.body.homeAddress|| req.body.countryCode || req.body.passportNumber || req.body.Password || req.body.Type || req.body.firstName || req.body.lastName || req.body.dateOfBirth ||req.body.flightNumbers || req.body._id) {
+      const filteredUsers = await user
+        .find(req.body)
+        .catch((err) => res.status(404).send("No Users found"));
+      if (filteredUsers.length === 0) {
+        res.status(404).send("No Users found");
+      }
+      res.status(200).send(filteredUsers);
+    }else{
+      res.status(400).json("Invalid Input!");
+    }
+  };

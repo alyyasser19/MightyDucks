@@ -20,6 +20,12 @@ const theme = createTheme({
     },
     white: {
       main: "#ffffff",
+    },
+    offWhite: {
+      main: "#f2f5fb",
+    },
+    menuItem: {
+    main: '#6a717f'
     }
   },
   typography: {

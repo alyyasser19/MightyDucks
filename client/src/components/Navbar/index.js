@@ -10,6 +10,8 @@ import FormGroup from "@mui/material/FormGroup";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import useScrollTrigger from "@mui/material/useScrollTrigger";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
 import Logo from "../Logo";
 
 //fixing navbar as we scroll
@@ -44,51 +46,117 @@ export default function Navbar(props) {
   return (
     <Box sx={{ flexGrow: 1, height: "5em" }}>
       <ElevationScroll {...props}>
-        <AppBar color='white' position='fixed'>
+        <AppBar color='offWhite' position='fixed'>
           <Toolbar>
             <Logo />
             {auth && (
-              <div>
-                <IconButton
+              <Grid
+                container
+                justify='flex-end'
+                alignItems='center'
+                sx={{ ml: 2 }}>
+                <Button
+                  variant='text'
                   size='large'
-                  aria-label='account of current user'
-                  aria-controls='menu-appbar'
-                  aria-haspopup='true'
-                  onClick={handleMenu}
-                  color='inherit'>
-                  <AccountCircle />
-                </IconButton>
-                <Menu
-                  id='menu-appbar'
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}>
-                  <MenuItem onClick={handleClose}>Profile</MenuItem>
-                  <MenuItem onClick={handleClose}>My account</MenuItem>
-                </Menu>
-              </div>
+                  color='menuItem'
+                  sx={{
+                    width: "20em",
+                    display: {
+                      xs: "none",
+                      md: "block",
+                    },
+                  }}>
+                  Book & Manage
+                </Button>
+                <Button
+                  variant='text'
+                  size='large'
+                  color='menuItem'
+                  sx={{
+                    width: "20em",
+                    display: {
+                      xs: "none",
+                      md: "block",
+                    },
+                  }}>
+                  Prepare & Travel
+                </Button>
+              </Grid>
             )}
-            <FormGroup>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={auth}
-                    onChange={handleChange}
-                    aria-label='login switch'
-                  />
-                }
-                label={auth ? "Logout" : "Login"}
-              />
-            </FormGroup>
+            {!auth && (
+              <Grid
+                container
+                justify='flex-end'
+                alignItems='center'
+                sx={{ ml: 2 }}>
+                <Button
+                  variant='text'
+                  size='large'
+                  color='menuItem'
+                  sx={{
+                    width: "20em",
+                    display: {
+                      xs: "none",
+                      md: "block",
+                    },
+                  }}>
+                  Manage Flights
+                </Button>
+              </Grid>
+            )}
+            <Grid
+              container
+              justify='flex-end'
+              sx={{ justifyContent: "end", gap: "2em" }}
+              alignItems='center'>
+              {auth && (
+                <div>
+                  <IconButton
+                    size='large'
+                    aria-label='account of current user'
+                    aria-controls='menu-appbar'
+                    aria-haspopup='true'
+                    onClick={handleMenu}
+                    color='black'
+                    edge='end'>
+                    <AccountCircle
+                      sx={{
+                        fontSize: { md: "1.5em" },
+                      }}
+                    />
+                  </IconButton>
+                  <Menu
+                    id='menu-appbar'
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                      vertical: "top",
+                      horizontal: "right",
+                    }}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}>
+                    <MenuItem onClick={handleClose}>Profile</MenuItem>
+                    <MenuItem onClick={handleClose}>My account</MenuItem>
+                  </Menu>
+                </div>
+              )}
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={auth}
+                      onChange={handleChange}
+                      aria-label='login switch'
+                    />
+                  }
+                  label={auth ? "User" : "Admin"}
+                />
+              </FormGroup>
+            </Grid>
           </Toolbar>
         </AppBar>
       </ElevationScroll>
