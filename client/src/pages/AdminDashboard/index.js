@@ -324,6 +324,7 @@ function DisplayFlight() {
 
 function AddFlight() {
   const [open, setOpen] = React.useState(false);
+  const [errorAlert, setErrorAlert] = React.useState(false);
   const [flightNumber, setFlightNumber] = useState("");
   const [arrivalTime, setArrivalTime] = useState(moment());
   const [departureTime, setDepartureTime] = useState(moment());
@@ -382,7 +383,7 @@ function AddFlight() {
               Operation Successful!!
             </Alert>
           </Collapse>
-          <Collapse in={open}>
+          <Collapse in={errorAlert}>
             <Alert severity="error">
                action={
                 <IconButton
@@ -390,7 +391,7 @@ function AddFlight() {
                   color='inherit'
                   size='small'
                   onClick={() => {
-                    setOpen(false);
+                    errorAlert(false);
                   }}>
                   <CloseIcon fontSize='inherit' />
                 </IconButton>
@@ -475,6 +476,7 @@ function AddFlight() {
               })
               .catch(function (error) {
                 console.log(error);
+                setErrorAlert(true);
               });
           }}>
           Add Flight
