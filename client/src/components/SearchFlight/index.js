@@ -8,6 +8,12 @@ import axios from "axios";
 import moment from "moment";
 import DateAdapter from "@mui/lab/AdapterMoment";
 
+function formatDate(str){
+    var formattedDate = moment(str).format('L');
+    var formatted = formattedDate.split('/');
+    formattedDate = formatted[1] + '/' + formatted[0] + '/' + formatted[2] + " " + moment(str).format('LT');
+    
+  }
 function SearchFlight() {
 
 //States
@@ -97,7 +103,8 @@ function SearchFlight() {
             setLoad(false);
             });
     };
-
+    formatDate(departureTime); 
+    formatDate(arrivalTime);  
     return (
     <Grid
         container

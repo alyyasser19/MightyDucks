@@ -9,6 +9,12 @@ import axios from "axios";
 import moment from "moment";
 import DateAdapter from "@mui/lab/AdapterMoment";
 
+function formatDate(str){
+  var formattedDate = moment(str).format('L');
+  var formatted = formattedDate.split('/');
+  formattedDate = formatted[1] + '/' + formatted[0] + '/' + formatted[2] + " " + moment(str).format('LT');
+  
+}
 function AddFlight() {
 //States 
   const [open, setOpen] = React.useState(false);
@@ -21,7 +27,7 @@ function AddFlight() {
   const [seatsAvailableBus, setSeatsAvailableBus] = useState("");
   const [seatsAvailableEco, setSeatsAvailableEco] = useState("");
   const [seatsAvailableFirst, setSeatsAvailableFirst] = useState("");
-    
+
 //Change functions
   const handleChangeFlightNumber = (event) => {
     setFlightNumber(event.target.value);
@@ -69,7 +75,8 @@ function AddFlight() {
                 setErrorAlert(true);
               });
     }
-
+    formatDate(departureTime); 
+    formatDate(arrivalTime);  
   return (
     <Grid
       container
