@@ -8,13 +8,8 @@ import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import moment from "moment";
 import DateAdapter from "@mui/lab/AdapterMoment";
+import {formatDate} from "../../API/formatDate.js";
 
-function formatDate(str){
-  var formattedDate = moment(str).format('L');
-  var formatted = formattedDate.split('/');
-  formattedDate = formatted[1] + '/' + formatted[0] + '/' + formatted[2] + " " + moment(str).format('LT');
-  
-}
 function AddFlight() {
 //States 
   const [open, setOpen] = React.useState(false);
