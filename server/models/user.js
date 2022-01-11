@@ -53,6 +53,11 @@ const userSchema = mongoose.Schema({
         default: [],
         required: true
     },
+    register_date: {
+        type: Date,
+        default: Date.now,
+        required: true
+    }
 });
 
 var user = mongoose.model('user', userSchema);
