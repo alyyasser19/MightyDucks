@@ -4,6 +4,7 @@ import { seat } from "../models/flights.js";
 import axios from 'axios';
 import bcrypt from 'bcrypt';
 import validator from 'validator';
+import jwt from 'jsonwebtoken';
 
 
 export const getUserByID = async (req, res) => {
@@ -12,7 +13,26 @@ export const getUserByID = async (req, res) => {
 };
 
 
-export const addUser= async(req, res) => {
+export const addUser = async (req, res) => {
+    const jwt_key = process.env.JWT_SECRET;
+  if (
+    !req.body.Email ||
+    !req.body.Username ||
+    !req.body.homeAddress ||
+    !req.body.countryCode ||
+    !req.body.passportNumber ||
+    !req.body.Password ||
+    !req.body.firstName ||
+    !req.body.lastName ||
+    !req.body.dateOfBirth
+  ) {
+    res.status(400).send({
+      message:
+        "Invalid request: missing required fields!" ,
+    });
+    return;
+  }
+  
   const Email = req.body.Email;
   const Username = req.body.Username;
   const homeAddress =req.body.homeAddress;
@@ -26,7 +46,44 @@ export const addUser= async(req, res) => {
   const dateOfBirth = Date(req.body.dateOfBirth);
   const flightNumbers =req.body.flightNumbers;
 
+  //check if the user already exists
 
+  user.findOne({
+    email: Email
+  }).then(async (user) => {
+    if (user) {
+      res.status(400).send({
+        message: 'User already exists'
+      });
+      return;
+    }
+  });
+
+    user.findOne({
+      username: Username
+    }).then(async (user) => {
+      if (user) {
+        res.status(400).send({
+          message: 'Username already exists'
+        });
+        return;
+      }
+    });
+ 
+      user.findOne({
+        passportNumber: passportNumber
+      }).then(async (user) => {
+        if (user) {
+          res.status(400).send({
+            message: 'Passport number already exists'
+          });
+          return;
+        }
+      });
+
+  //create new user
+  console.log("creating new user");
+        
   const newUser = new user({
     Email:Email,
     Username:Username,
@@ -46,9 +103,49 @@ export const addUser= async(req, res) => {
   }
 
   newUser.save()
-    .then(() => res.json('User added!'))
-    .catch(err => res.status(400).json('Error: ' + err));
+    .then(() => {
+      console.log("user being created");
+      jwt.sign({
+        email: Email,
+        username: Username,
+        _id: newUser._id
+      }, jwt_key, (err, token) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({
+            message: err
+          });
+        }
+        console.log(token)
+        axios
+          .post(
+            "http://localhost:8000/mail//signUp",
+            {
+              email: Email,
+              name: firstName + " " + lastName,
+            }
+        )
+          .then(response => {
+            console.log(response.data);
+          })
+          .catch(error => {
+            console.log(error);
+          });
+        res.status(200).json({
+          message: "User created successfully",
+          token: token
+        });
+      });
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        message: err
+      });
+    });
 };
+
+
 export const updateUser= async(req, res) => {
    
     user.findById(req.body._id)
@@ -127,7 +224,8 @@ export const updateUser= async(req, res) => {
       .catch(err => res.status(400).json('Error: ' + err));;
 };
 
-export const getUsers =  async(req, res) => { 
+export const getUsers = async (req, res) => { 
+  console.log(req.user);
     const users = await user.find()
       res.status(200).send(users);
 };
@@ -468,5 +566,39 @@ export const searchFlights = async (req, res) => {
       }
     })
     .catch((err) => res.status(410).json(err));
+};
+
+export const loginUser = async (req, res) => {
+  const jwt_secret = process.env.JWT_SECRET;
+  const curUser = await user.findOne({ Email: req.body.Email });
+  if (!curUser) {
+    res.status(404).json("User not found!");
+    return;
+  }
+  bcrypt.compare(
+    req.body.Password,
+    curUser.Password,
+  ).then((match) => {
+    console.log(match);
+    if (match) {
+      const token = jwt.sign(
+        {
+          _id: curUser._id,
+          Email: curUser.Email,
+        },
+        jwt_secret,
+        {
+          expiresIn: "24h",
+        },
+      );
+      res.status(200).json({
+        token: token,
+        user: curUser,
+      });
+      
+    } else {
+      res.status(400).json("Invalid Password!");
+    }
+  });
 };
 
