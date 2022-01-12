@@ -12,6 +12,7 @@ import User from "./pages/UserProfile";
 import UserFlights from "./pages/UserFlights";
 import EditProfile from "./components/EditProfile";
 import Booking from "./pages/BookingV";
+import Register from "./pages/Register";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import ReservedFlight from "./pages/ReservedFlightsDetails";
@@ -33,6 +34,7 @@ ReactDOM.render(
           <Route path='user/modify/:id' element={<EditProfile />} />
           <Route path='home/booking/:id' element={<Booking />} />
           <Route path='user/flights/itinerary' element={<ReservedFlight />} />
+          <Route path='register' element={<Register />} />
         </Routes>
       </ThemeProvider>
     </Box>

@@ -44,7 +44,8 @@ export const addUser = async (req, res) => {
   const firstName =req.body.firstName;
   const lastName =req.body.lastName;
   const dateOfBirth = Date(req.body.dateOfBirth);
-  const flightNumbers =req.body.flightNumbers;
+  const flightNumbers = req.body.flightNumbers;
+  const phoneNumber = [req.body.phoneNumber];
 
   //check if the user already exists
 
@@ -95,7 +96,8 @@ export const addUser = async (req, res) => {
     firstName:firstName,
     lastName:lastName,
     dateOfBirth:dateOfBirth,
-    flightNumbers:flightNumbers
+    flightNumbers: flightNumbers,
+    phoneNumber: phoneNumber,
   });
   if(!validator.isEmail(Email)){
     res.status(400).json('Error: Invalid Email');
