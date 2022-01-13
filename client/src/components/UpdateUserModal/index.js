@@ -1,14 +1,16 @@
 import React from "react";
 import { Modal, Box, Typography, Button } from "@mui/material";
 import axios from "axios";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css'
+import {  toast } from 'react-toastify';
+import {useNavigate} from 'react-router-dom';
 
 
 toast.configure();
 
 function UpdateUserModal({ _id, newUsername, newEmail, newFirst, newLast, newPassport, newDob, newHome, newCountry, handleCloseEdit, openEdit }) {
 
+  const navigate = useNavigate();
+  
   const data = {
     _id: _id,
     Email: newEmail,
@@ -26,7 +28,12 @@ function UpdateUserModal({ _id, newUsername, newEmail, newFirst, newLast, newPas
           toast.success('User updated successfully!', {
           position: toast.POSITION.BOTTOM_RIGHT
         })
-          handleCloseEdit();
+        handleCloseEdit();
+        setTimeout(function () {
+          navigate("/user", {
+            replace: true,
+          });
+        }, 3000);
       })
       .catch((error) => {
         toast.error('An error occurred', {

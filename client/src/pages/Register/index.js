@@ -28,9 +28,10 @@ function Register() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [country, SetCountry] = useState();
   const [passport, setPassport] = useState("");
   const [dob, setDob] = useState(moment());
+  const [valueCountry, setValueCountry] = React.useState(null);
+  const [inputValueCountry, setInputValueCountry] = React.useState(null);
 
   // State for the form
   const handleFirstName = (e) => {
@@ -54,11 +55,6 @@ function Register() {
   const handleAddress = (e) => {
     setAddress(e.target.value);
   };
-  const handleCountry = (e, newValue) => {
-    SetCountry(newValue.code);
-    console.log(newValue.code);
-    console.log(e);
-  };
   const handlePassport = (e) => {
     setPassport(e.target.value);
   };
@@ -77,7 +73,7 @@ function Register() {
         Email: email,
         phoneNumber: phone,
         homeAddress: address,
-        countryCode: country.toUpperCase().substring(0, 3),
+        countryCode: valueCountry.code,
         passportNumber: passport,
         dateOfBirth: dob,
       })
@@ -188,31 +184,43 @@ function Register() {
                   id='country'
                   label='Country'
                   variant='outlined'
-                  value={country}
-                  inputValue={country}
-                  onInputChange={handleCountry}
+                  inputValue={inputValueCountry}
+                  value={valueCountry}
+                  onChange={(event, newValue) => {
+                    if (newValue) {
+                      setValueCountry(newValue);
+                      console.log(valueCountry);
+                    }
+                  }}
+                  onInputChange={(event, newInputValue) => {
+                    setInputValueCountry(newInputValue);
+                    console.log(newInputValue);
+                  }}
                   ListboxProps={{
                     style: { maxHeight: "10rem" },
                     position: "bottom-start",
                   }}
-                  onChange={handleCountry}
                   required
+                  InputLabelProps={{ shrink: !!valueCountry }}
                   options={countries}
-                  getOptionLabel={(option) => option.label}
+                  getOptionLabel={(option) => {
+                    return option.label;
+                  }}
+                  isOptionEqualToValue={(option, value) => {
+                    return option.code === value.code;
+                  }}
                   renderOption={(props, option) => (
                     <Box
                       component='li'
                       sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
                       {...props}>
-                      {country ? (
-                        <img
-                          loading='lazy'
-                          width='20'
-                          src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
-                          srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
-                          alt=''
-                        />
-                      ) : null}
+                      <img
+                        loading='lazy'
+                        width='20'
+                        src={`https://flagcdn.com/w20/${option.code.toLowerCase()}.png`}
+                        srcSet={`https://flagcdn.com/w40/${option.code.toLowerCase()}.png 2x`}
+                        alt=''
+                      />
                       {option.label}
                     </Box>
                   )}
@@ -221,10 +229,6 @@ function Register() {
                       {...params}
                       margin='normal'
                       label='Choose a country'
-                      inputProps={{
-                        ...params.inputProps,
-                        autoComplete: "new-password",
-                      }}
                     />
                   )}
                 />

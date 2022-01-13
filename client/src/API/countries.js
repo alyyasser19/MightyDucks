@@ -422,3 +422,13 @@ export const countries = [
   { code: "ZM", label: "Zambia", phone: "260" },
   { code: "ZW", label: "Zimbabwe", phone: "263" },
 ];
+
+export const getCountry = (code) => {
+  const country = countries.find((c) => c.code === code);
+  return country ? country.label : code;
+};
+
+export const getCountryObject = (code) => {
+  const country = countries.find((c) => c.code === code);
+  return country;
+}
