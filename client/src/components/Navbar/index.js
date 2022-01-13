@@ -30,7 +30,6 @@ export default function Navbar(props) {
   const location = useLocation();
   const [curUser, setCurUser] = React.useState({});
   React.useEffect(() => {
-    console.log("navbar");
         if (location.pathname === "/") {
           setCurUser({ state: "not logged in" });
         } if(location.pathname === '/home') {
@@ -39,13 +38,13 @@ export default function Navbar(props) {
     if (
       (location.pathname !== "/admin" &&
       location.pathname !== "/" )  &&
-      curUser.Type==="N"
+      localStorage.getItem("token")
     ) {
       setAuth(true);
     } else {
       setAuth(false);
     }
-  }, [location, curUser]);
+  }, [location]);
 
 
 

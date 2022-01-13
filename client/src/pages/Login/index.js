@@ -1,12 +1,12 @@
 import { React, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import {
   Grid,
   Typography,
   TextField,
   InputAdornment,
   Button,
-  CircularProgress
+  CircularProgress, 
 } from "@mui/material";
 import { PersonOutlineOutlined, HttpsOutlined } from "@mui/icons-material/";
 import IMG from "../../assets/Ticket.png";
@@ -14,15 +14,16 @@ import "./styles.css";
 import axios from "axios";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [authorizedUser, setAuthorizedUser] = useState(false);
   const [authorizedAdmin, setAuthorizedAdmin] = useState(false);
   const [error, setError] = useState(false);
-  const [user, setUser] = useState("");
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({});
-  let x;
+
   const handleUsername = (e) => {
     setUsername(e.target.value);
   };
@@ -34,21 +35,28 @@ function Login() {
     if(username==="admin" && password==="admin"){
       setAuthorizedAdmin(true);
       setError(false);
+      setLoading(false);
     } else {
-      axios.post("http://localhost:8000/user/getUser", {
-            Username: username
+      setLoading(true);
+      axios.post("http://localhost:8000/user/login", {
+        Username: username,
+        Password: password
           })
           .then((res) => {
-              if(res.data){
+            if (res.data) {
+                console.log(res.data);
                 setUserInfo(res.data);
                 setError(false);
-                setAuthorizedUser(true);
+              setAuthorizedUser(true);
+              setLoading(false);
               }
-              else{
+            else {
+              setLoading(false);
                 setError(true)
               }  
           })
-          .catch((err) => {
+        .catch((err) => {
+          setLoading(false)
             setError(true);
           });
         }
@@ -243,6 +251,9 @@ function Login() {
             </Typography>
             <Button
               variant='text'
+              onClick={() => {
+                navigate("/register");
+              }}
               sx={{
                 color: "secondary.lighter",
                 textAlign: "left",
