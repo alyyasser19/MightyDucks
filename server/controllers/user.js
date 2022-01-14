@@ -1,6 +1,5 @@
 import user from "../models/user.js";
 import flight from "../models/flights.js";
-import { seat } from "../models/flights.js";
 import axios from "axios";
 import bcrypt from "bcrypt";
 import validator from "validator";
@@ -155,7 +154,7 @@ export const addUser = async (req, res) => {
 };
 
 export const updateUser = async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   user
     .findById(req.body._id)
 
@@ -221,8 +220,8 @@ export const updateUser = async (req, res) => {
           })
 
           .catch((err) => {
-            console.log(err)
-            res.status(400).json("Error: " + err)
+            console.log(err);
+            res.status(400).json("Error: " + err);
           });
       }
     })
@@ -336,177 +335,332 @@ export const searchUsers = async (req, res) => {
   }
 };
 
+//Type: Post
+//Desc: Add a flights to a user, then add the user to the flight using the subscribe method, then email the user with the flight details
+//body: { seatTo : LIST, seatFrom : LIST, flightNumber : String, bookingNumber : STRING}
+//Path: /flight/addFlightUser
+//Access: Private
 export const addFlightUser = async (req, res) => {
-  const flightNumber = req.body.flightNumber.toUpperCase();
-  let flightId;
-  let cabinClass;
-  axios({
-    method: "get",
-    url: "http://localhost:8000/flight/flightNumber",
-    headers: {},
-    data: {
-      flightNumber: flightNumber,
-    },
-  })
-    .then(async (response) => {
-      if (response.data.length === 0) {
-        res.status(404).json("Flight not found!");
-      } else {
-        flightId = response.data._id;
-        const curUser = await user.findById(req.body._id);
-        if (curUser) {
-          const curFlight = {
-            flightNumber: req.body.flightNumber,
-            price: req.body.price,
-            baggage: req.body.baggage,
-            seat: req.body.seats,
-            bookingNumber: req.body.bookingNumber,
-            class: req.body.class,
-          };
-          for (let i = 0; i < curUser.flights.length; i++) {
-            if (curUser.flights[i].flightNumber === curFlight.flightNumber) {
-              res.status(400).json("Flight already exists!");
-              return;
-            }
-          }
-          curUser.flights.push(curFlight);
-          curUser.save();
-          flight.findById(flightId).then((curFlight) => {
-            if (req.body.class === "Economy") {
-              cabinClass = "Eco";
-            } else if (req.body.class === "Business") {
-              cabinClass = "Bus";
-            } else if (req.body.class === "First") {
-              cabinClass = "First";
-            }
+  const userId = req.user._id;
+  user.findById(userId).then((curUser) => {
+    if (curUser) {
+      //get objects
+      const seatTo = req.body.seatTo[0].split(",");
+      const priceTo = seatTo[3];
+      const cabinClassTo = seatTo[1];
+      const flightNumberTo = req.body.flightNumber;
+      const bookingNumber = req.body.bookingNumber;
+      let baggageTo;
+      if (cabinClassTo === "Economy") {
+        baggageTo = 1;
+      } else if (cabinClassTo === "Business") {
+        baggageTo = 2;
+      } else if (cabinClassTo === "First") {
+        baggageTo = 3;
+      }
 
-            curFlight[`seatsAvailable${req.body.class}`] -=
-              req.body.seats.length;
-            for (let curSeat in curFlight.seats) {
-              for (let i = 0; i < req.body.seats.length; i++) {
-                if (curFlight.seats[curSeat].seatNumber === req.body.seats[i]) {
-                  curFlight.seats[curSeat].reserved = true;
-                  const updatedSeat = new seat({
-                    seatNumber: req.body.seats[i],
-                    reserved: true,
-                    seatType: curFlight.seats[curSeat].seatType,
-                  });
-                  curFlight.seats.splice(curSeat, 1, updatedSeat);
-                }
-              }
-            }
-            curFlight.save();
-          });
-          //
-          axios
-            .post("http://localhost:8000/flight/subscribe", {
-              _id: flightId,
-              flightNumber: flightNumber,
-              subscriber: curUser.Email,
-              price: curFlight.price,
-              name: {
-                first: curUser.firstName,
-                last: curUser.lastName,
-              },
-            })
-            .catch((err) => console.log(err.data));
-          res.status(200).json("Flight added!");
-        } else {
-          res.status(404).json("User not found!");
+      //Construct the Dest Flight
+      const curFlightTo = {
+        flightNumber: flightNumberTo,
+        price: priceTo,
+        baggage: baggageTo,
+        seat: req.body.seatTo,
+        bookingNumber: bookingNumber,
+      };
+
+      for (let i = 0; i < curUser.flights.length; i++) {
+        if (curUser.flights[i].flightNumber === curFlightTo.flightNumber) {
+          res.status(400).json("Flight already exists!");
         }
       }
-    })
-    .catch((err) => res.status(410).json(err));
-};
 
-export const deleteFlightUser = async (req, res) => {
-  const flightNumber = req.body.flightNumber;
-  let curFlight;
-  let buyer;
-  let cabinClass;
-  axios({
-    method: "get",
-    url: "http://localhost:8000/flight/flightNumber",
-    headers: {},
-    data: {
-      flightNumber: flightNumber,
-    },
-  })
-    .then(async (response) => {
-      curFlight = response.data;
+      curUser.flights.push(curFlightTo);
 
-      if (response.data.length === 0) {
-        res.status(404).json("Flight not found!");
-      } else {
-        user.findById(req.body._id).then((curUser) => {
-          if (curUser) {
-            let found = false;
-            for (let i = 0; i < curUser.flights.length; i++) {
-              if (curUser.flights[i].flightNumber === flightNumber) {
-                buyer = curUser.flights[i];
-
-                if (curUser.flights[i].class === "First") {
-                  cabinClass = "First";
-                } else if (curUser.flights[i].class === "Business") {
-                  cabinClass = "Bus";
-                } else {
-                  cabinClass = "Eco";
-                }
-                curUser.flights.splice(i, 1);
-                found = true;
-                break;
-              }
-            }
-            if (found) {
-              curUser.save();
-
-              flight.findById(curFlight._id).then((curFlight) => {
-                curFlight[`seatsAvailable${cabinClass}`] +=
-                  req.body.seats.length;
-                for (let curSeat in curFlight.seats) {
-                  for (let i = 0; i < req.body.seats.length; i++) {
-                    if (
-                      curFlight.seats[curSeat].seatNumber === req.body.seats[i]
-                    ) {
-                      curFlight.seats[curSeat].reserved = false;
-                      const updatedSeat = new seat({
-                        seatNumber: req.body.seats[i],
-                        reserved: false,
-                        seatType: curFlight.seats[curSeat].seatType,
-                      });
-                      curFlight.seats.splice(curSeat, 1, updatedSeat);
-                    }
-                  }
-                }
-                curFlight.save();
-              });
-              axios
-                .post("http://localhost:8000/flight/unsubscribe", {
-                  _id: curFlight._id,
-                  flightNumber: flightNumber,
-                  subscriber: curUser.Email,
-                  price: buyer.price,
-                  name: {
-                    first: curUser.firstName,
-                    last: curUser.lastName,
-                  },
-                })
-                .catch((err) => console.log(err.message));
-              res.status(200).json("Flight deleted!");
-              return;
-            } else {
-              res.status(404).json("Flight not found!");
-              return;
-            }
-          } else {
-            res.status(404).json("User not found!");
-            return;
-          }
-        });
+      //Construct the Ret Flight
+      const seatFrom = req.body.seatFrom[0].split(",");
+      const priceFrom = seatFrom[3];
+      const cabinClassFrom = seatFrom[1];
+      const flightNumberFrom = req.body.flightNumber + "R";
+      let baggageFrom;
+      if (cabinClassFrom === "Economy") {
+        baggageFrom = 1;
+      } else if (cabinClassFrom === "Business") {
+        baggageFrom = 2;
+      } else if (cabinClassFrom === "First") {
+        baggageFrom = 3;
       }
-    })
-    .catch((err) => res.status(410).json(err));
+
+      const curFlightFrom = {
+        flightNumber: flightNumberFrom,
+        price: priceFrom,
+        baggage: baggageFrom,
+        seat: req.body.seatFrom,
+        bookingNumber: bookingNumber,
+      };
+
+      curUser.flights.push(curFlightFrom);
+
+      // Save the user after the flights are added
+      axios
+        .post("http://localhost:8000/flight/subscribe", {
+          flightNumber: flightNumberTo,
+          subscriber: curUser.Email,
+          price: priceTo,
+          name: {
+            first: curUser.firstName,
+            last: curUser.lastName,
+          },
+          seatFrom: req.body.seatFrom,
+          seatTo: req.body.seatTo,
+        })
+        .then(() => {
+          // After subscribing to the Flight send back the response
+          curUser.save().then(() => {
+            res.status(200).json("Flight added to user!");
+          }).catch((err) => {
+            res.status(400).json("Error adding flight to user!");
+          });
+        })
+        .catch((err) => {
+          res.status(410).json(err);
+        });
+    } else {
+      res.status(404).json("User not found!");
+    }
+  });
 };
+//Type: Post
+//Desc: Add a flights to a user, then add the user to the flight using the subscribe method, then email the user with the flight details
+//body: {seats : LIST, flightNumber : String, bookingNumber : STRING}
+//Path: /flight/addSingleFlightUser
+//Access: Private
+export const addSingleFlightUser = async (req, res) => {
+  const userId = req.user._id;
+  user.findById(userId).then((curUser) => {
+    if (curUser) {
+      //get objects
+      const seatTo = req.body.seats[0].split(",");
+      const priceTo = seatTo[3];
+      const cabinClassTo = seatTo[1];
+      const flightNumberTo = req.body.flightNumber;
+      const bookingNumber = req.body.bookingNumber;
+      let baggageTo;
+      if (cabinClassTo === "Economy") {
+        baggageTo = 1;
+      } else if (cabinClassTo === "Business") {
+        baggageTo = 2;
+      } else if (cabinClassTo === "First") {
+        baggageTo = 3;
+      }
+
+      //Construct the Dest Flight
+      const curFlightTo = {
+        flightNumber: flightNumberTo,
+        price: priceTo,
+        baggage: baggageTo,
+        seat: req.body.seats,
+        bookingNumber: bookingNumber,
+      };
+
+      for (let i = 0; i < curUser.flights.length; i++) {
+        if (curUser.flights[i].flightNumber === curFlightTo.flightNumber) {
+          res.status(400).json("Flight already exists!");
+        }
+      }
+
+      curUser.flights.push(curFlightTo);
+
+      axios.post("http://localhost:8000/flight/subscribeSingle",
+        {
+          flightNumber: flightNumberTo,
+          subscriber: curUser.Email,
+          price: priceTo,
+          name: {
+            first: curUser.firstName,
+            last: curUser.lastName,
+          },
+          seats: req.body.seats,
+        })
+        .then(() => {
+          // After subscribing to the Flight send back the response
+          curUser.save().then(() => {
+            res.status(200).json("Flight added to user!");
+          }).catch((err) => {
+            res.status(400).json("Error adding flight to user!");
+          });
+        })
+        .catch((err) => {
+          res.status(410).json(err);
+        });
+    } else {
+      res.status(404).json("User not found!");
+    }
+  });
+};
+
+//Type: Post
+//Desc: Delete a flights to a user, Delete add the user to the flight using the unsubscribe method, then email the user with the flight details
+//body: { seatTo : LIST, seatFrom : LIST, flightNumber : String, bookingNumber : STRING}
+//Path: /flight/DeleteFlightUser
+//Access: Private
+export const deleteFlightUser = async (req, res) => {
+  const userId = req.user._id;
+  user.findById(userId).then((curUser) => {
+    if (curUser) {
+      for (let i = 0; i < curUser.flights.length; i++) {
+        if (curUser.flights[i].flightNumber === req.body.flightNumber) {
+          curUser.flights.splice(i, 1);
+        }
+        if (curUser.flights[i].flightNumber === req.body.flightNumber+"R") {
+          curUser.flights.splice(i, 1);
+        }
+      }
+      axios.post("http://localhost:8000/flight/unsubscribe", {
+        flightNumber: req.body.flightNumber,
+        subscriber: curUser.Email,
+        name: {
+          first: curUser.firstName,
+          last: curUser.lastName,
+        },
+        seatFrom: req.body.seatFrom,
+        seatTo: req.body.seatTo,
+      }).then(() => {
+        curUser.save().then(() => {
+          res.status(200).json("Flight removed from user!");
+        }).catch((err) => {
+          res.status(400).json("Error removing flight from user!");
+        });
+      }).catch((err) => {
+        res.status(410).json(err);
+      });
+    } else {
+      res.status(404).json("User not found!");
+    }
+  });
+};
+
+//Type: Post
+//Desc: Deletes a flights to a user, then Deletes the user to the flight using the unsubscribe method, then email the user with the flight details
+//body: { seats : LIST, flightNumber : String, bookingNumber : STRING}
+//Path: /flight/DeleteSingleFlightUser
+//Access: Private
+export const deleteSingleFlightUser = async (req, res) => {
+  const userId = req.user._id;
+  user.findById(userId).then((curUser) => {
+    if (curUser) {
+      for (let i = 0; i < curUser.flights.length; i++) {
+        if (curUser.flights[i].flightNumber === req.body.flightNumber) {
+          curUser.flights.splice(i, 1);
+        }
+      }
+      axios.post("http://localhost:8000/flight/unsubscribeSingle", {
+        flightNumber: req.body.flightNumber,
+        subscriber: curUser.Email,
+        name: {
+          first: curUser.firstName,
+          last: curUser.lastName,
+        },
+        seats: req.body.seats,
+      }).then(() => {
+        curUser.save().then(() => {
+          res.status(200).json("Flight removed from user!");
+        }).catch((err) => {
+          res.status(400).json("Error removing flight from user!");
+        });
+      }).catch((err) => {
+        res.status(410).json(err);
+      });
+    } else {
+      res.status(404).json("User not found!");
+    }
+  });
+};
+
+
+  // const flightNumber = req.body.flightNumber;
+  // let curFlight;
+  // let buyer;
+  // let cabinClass;
+  // axios({
+  //   method: "get",
+  //   url: "http://localhost:8000/flight/flightNumber",
+  //   headers: {},
+  //   data: {
+  //     flightNumber: flightNumber,
+  //   },
+  // })
+  //   .then(async (response) => {
+  //     curFlight = response.data;
+  //     if (response.data.length === 0) {
+  //       res.status(404).json("Flight not found!");
+  //     } else {
+  //       user.findById(req.body._id).then((curUser) => {
+  //         if (curUser) {
+  //           let found = false;
+  //           for (let i = 0; i < curUser.flights.length; i++) {
+  //             if (curUser.flights[i].flightNumber === flightNumber) {
+  //               buyer = curUser.flights[i];
+  //               if (curUser.flights[i].class === "First") {
+  //                 cabinClass = "First";
+  //               } else if (curUser.flights[i].class === "Business") {
+  //                 cabinClass = "Bus";
+  //               } else {
+  //                 cabinClass = "Eco";
+  //               }
+  //               curUser.flights.splice(i, 1);
+  //               found = true;
+  //               break;
+  //             }
+  //           }
+  //           if (found) {
+  //             curUser.save();
+  //             flight.findById(curFlight._id).then((curFlight) => {
+  //               curFlight[`seatsAvailable${cabinClass}`] +=
+  //                 req.body.seats.length;
+  //               for (let curSeat in curFlight.seats) {
+  //                 for (let i = 0; i < req.body.seats.length; i++) {
+  //                   if (
+  //                     curFlight.seats[curSeat].seatNumber === req.body.seats[i]
+  //                   ) {
+  //                     curFlight.seats[curSeat].reserved = false;
+  //                     const updatedSeat = new seat({
+  //                       seatNumber: req.body.seats[i],
+  //                       reserved: false,
+  //                       seatType: curFlight.seats[curSeat].seatType,
+  //                     });
+  //                     curFlight.seats.splice(curSeat, 1, updatedSeat);
+  //                   }
+  //                 }
+  //               }
+  //               curFlight.save();
+  //             });
+  //             axios
+  //               .post("http://localhost:8000/flight/unsubscribe", {
+  //                 _id: curFlight._id,
+  //                 flightNumber: flightNumber,
+  //                 subscriber: curUser.Email,
+  //                 price: buyer.price,
+  //                 name: {
+  //                   first: curUser.firstName,
+  //                   last: curUser.lastName,
+  //                 },
+  //               })
+  //               .catch((err) => console.log(err.message));
+  //             res.status(200).json("Flight deleted!");
+  //             return;
+  //           } else {
+  //             res.status(404).json("Flight not found!");
+  //             return;
+  //           }
+  //         } else {
+  //           res.status(404).json("User not found!");
+  //           return;
+  //         }
+  //       });
+  //     }
+  //   })
+  //   .catch((err) => res.status(410).json(err));
+
 
 export const getFlightsUser = async (req, res) => {
   const curUser = await user.findById(req.body._id);
@@ -627,9 +781,7 @@ export const addPhone = async (req, res) => {
     console.log(curUser.phoneNumber);
     if (curUser.phoneNumber.length === 0) {
       curUser.phoneNumber.push(req.body.phoneNumber);
-    } else
-      if (curUser.phoneNumber.length < 3) 
-      {
+    } else if (curUser.phoneNumber.length < 3) {
       for (let i = 0; i < curUser.phoneNumber.length; i++) {
         if (curUser.phoneNumber[i] === req.body.phoneNumber) {
           res.status(400).json("Phone number already exists!");
@@ -637,17 +789,16 @@ export const addPhone = async (req, res) => {
         }
       }
       curUser.phoneNumber.push(req.body.phoneNumber);
-      }
-      else {
-        res.status(400).json("You can only have 3 phone numbers!");
-        return;
-      }
+    } else {
+      res.status(400).json("You can only have 3 phone numbers!");
+      return;
+    }
     curUser.save();
     res.status(200).json("Phone added!");
   } else {
     res.status(404).json("User not found!");
   }
-}
+};
 
 export const deletePhone = async (req, res) => {
   console.log(req.body.phoneNumber);
@@ -666,12 +817,12 @@ export const deletePhone = async (req, res) => {
   } else {
     res.status(404).json("User not found!");
   }
-}
+};
 
 export const changePassword = async (req, res) => {
   const curUser = await user.findById(req.user._id);
   if (curUser) {
-    if(req.body.newPassword === req.body.confirmPassword) {
+    if (req.body.newPassword === req.body.confirmPassword) {
       bcrypt.compare(req.body.oldPassword, curUser.Password).then((match) => {
         if (match) {
           bcrypt.hash(req.body.newPassword, 10).then((hash) => {
@@ -689,4 +840,4 @@ export const changePassword = async (req, res) => {
   } else {
     res.status(404).json("User not found!");
   }
-}
+};

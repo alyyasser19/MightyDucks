@@ -93,143 +93,145 @@ function AddFlight() {
     }
 
   return (
-    <Grid
-      container
-      direction='column'
-      sx={{ gap: "1em", placeItems: "center" }}>
-      <LocalizationProvider dateAdapter={DateAdapter}>
-        <Box sx={{ width: "100%", placeItems: "center" }}>
-          <Collapse in={open}>
-            <Alert
-              action={
-                <IconButton
-                  aria-label='close'
-                  color='inherit'
-                  size='small'
-                  onClick={() => {
-                    setOpen(false);
-                  }}>
-                  <CloseIcon fontSize='inherit' />
-                </IconButton>
-              }
-              sx={{ mb: 2 }}>
-              Operation Successful!!
-            </Alert>
-          </Collapse>
-        </Box>
+    <form>
+      <Grid
+        container
+        direction='column'
+        sx={{ gap: "1em", placeItems: "center" }}>
+        <LocalizationProvider dateAdapter={DateAdapter}>
+          <Box sx={{ width: "100%", placeItems: "center" }}>
+            <Collapse in={open}>
+              <Alert
+                action={
+                  <IconButton
+                    aria-label='close'
+                    color='inherit'
+                    size='small'
+                    onClick={() => {
+                      setOpen(false);
+                    }}>
+                    <CloseIcon fontSize='inherit' />
+                  </IconButton>
+                }
+                sx={{ mb: 2 }}>
+                Operation Successful!!
+              </Alert>
+            </Collapse>
+          </Box>
 
-        <Box sx={{ width: "100%", placeItems: "center" }}>
-          <Collapse in={errorAlert}>
-            <Alert
-              action={
-                <IconButton
-                  aria-label='close'
-                  color='inherit'
-                  size='small'
-                  onClick={() => {
-                    setErrorAlert(false);
-                  }}>
-                  <CloseIcon fontSize='inherit' />
-                </IconButton>
-              }
-              sx={{ mb: 2 }}
-              severity='error'>
-              Operation Failed!!
-            </Alert>
-          </Collapse>
-        </Box>
+          <Box sx={{ width: "100%", placeItems: "center" }}>
+            <Collapse in={errorAlert}>
+              <Alert
+                action={
+                  <IconButton
+                    aria-label='close'
+                    color='inherit'
+                    size='small'
+                    onClick={() => {
+                      setErrorAlert(false);
+                    }}>
+                    <CloseIcon fontSize='inherit' />
+                  </IconButton>
+                }
+                sx={{ mb: 2 }}
+                severity='error'>
+                Operation Failed!!
+              </Alert>
+            </Collapse>
+          </Box>
 
-        <Typography variant='h4' gutterBottom color='primary'>
-          Add Flight
-        </Typography>
-        <TextField
-          label='Flight Number'
-          value={flightNumber}
-          onChange={handleChangeFlightNumber}
-          sx={{ width: "40%" }}
-        />
-        <DateTimePicker
-          label='Arrival Time'
-          value={arrivalTime}
-          onChange={handleChangeArrivalTime}
-          renderInput={(params) => (
-            <TextField {...params} sx={{ width: "40%" }} />
-          )}
-          sx={{ width: "40%" }}
-        />
-        <DateTimePicker
-          label='Departure Time'
-          value={departureTime}
-          onChange={handleChangeDepartureTime}
-          renderInput={(params) => (
-            <TextField {...params} sx={{ width: "40%" }} />
-          )}
-        />
-        <TextField
-          label='From'
-          value={from}
-          onChange={handleChangeFrom}
-          sx={{ width: "40%" }}
-        />
-        <TextField
-          label='To'
-          value={to}
-          onChange={handleChangeTo}
-          sx={{ width: "40%" }}
-        />
-        <TextField
-          label='Seats Available Economy'
-          value={seatsAvailableEco}
-          onChange={handleChangeSeatsAvailableEco}
-          sx={{ width: "40%" }}
-        />
-        <TextField
-          label='Seats Available Business'
-          value={seatsAvailableBus}
-          onChange={handleChangeSeatsAvailableBus}
-          sx={{ width: "40%" }}
-        />
-        <TextField
-          label='Seats Available First Class'
-          value={seatsAvailableFirst}
-          onChange={handleChangeSeatsAvailableFirst}
-          sx={{ width: "40%" }}
-        />
-        <TextField
-          label='Price Economy'
-          value={priceEco}
-          onChange={handleChangePriceEco}
-          sx={{ width: "40%" }}
-        />
-        <TextField
-          label='Price Business'
-          value={priceBus}
-          onChange={handleChangePriceBus}
-          sx={{ width: "40%" }}
-        />
-        <TextField
-          label='Price First Class'
-          value={priceFirst}
-          onChange={handleChangePriceFirst}
-          sx={{ width: "40%" }}
-        />
-        <TextField
-          label='Duration'
-          value={duration}
-          onChange={handleChangeDuration}
-          sx={{ width: "40%" }}
-        />
-        <Button
-          type='submit'
-          variant='contained'
-          color='primary'
-          onClick={() => {
-            handleSubmit();
-          }}>
-          Add Flight
-        </Button>
-      </LocalizationProvider>
-    </Grid>
+          <Typography variant='h4' gutterBottom color='primary'>
+            Add Flight
+          </Typography>
+          <TextField
+            label='Flight Number'
+            value={flightNumber}
+            onChange={handleChangeFlightNumber}
+            sx={{ width: "40%" }}
+          />
+          <DateTimePicker
+            label='Departure Time'
+            value={departureTime}
+            onChange={handleChangeDepartureTime}
+            renderInput={(params) => (
+              <TextField {...params} sx={{ width: "40%" }} />
+            )}
+          />
+          <DateTimePicker
+            label='Return Time'
+            value={arrivalTime}
+            onChange={handleChangeArrivalTime}
+            renderInput={(params) => (
+              <TextField {...params} sx={{ width: "40%" }} />
+            )}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='From'
+            value={from}
+            onChange={handleChangeFrom}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='To'
+            value={to}
+            onChange={handleChangeTo}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='Seats Available Economy'
+            value={seatsAvailableEco}
+            onChange={handleChangeSeatsAvailableEco}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='Seats Available Business'
+            value={seatsAvailableBus}
+            onChange={handleChangeSeatsAvailableBus}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='Seats Available First Class'
+            value={seatsAvailableFirst}
+            onChange={handleChangeSeatsAvailableFirst}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='Price Economy'
+            value={priceEco}
+            onChange={handleChangePriceEco}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='Price Business'
+            value={priceBus}
+            onChange={handleChangePriceBus}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='Price First Class'
+            value={priceFirst}
+            onChange={handleChangePriceFirst}
+            sx={{ width: "40%" }}
+          />
+          <TextField
+            label='Duration'
+            value={duration}
+            onChange={handleChangeDuration}
+            sx={{ width: "40%" }}
+          />
+          <Button
+            type='submit'
+            variant='contained'
+            color='primary'
+            onClick={() => {
+              handleSubmit();
+            }}>
+            Add Flight
+          </Button>
+        </LocalizationProvider>
+      </Grid>
+    </form>
   );
 }
 

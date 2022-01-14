@@ -5,12 +5,12 @@ import axios from "axios";
 
 function DeleteModal({ flight, handleCloseDelete, openDelete }) {
    //Flight ID passed from parent component
-   const _id = flight._id;
+  const flightNumber = flight.flightNumber;
 
-  const handleDelete = (_id) => {
+  const handleDelete = () => {
     axios
       .post("http://localhost:8000/flight/delete", {
-        _id,
+        flightNumber
       })
       .then(function (response) {
         handleCloseDelete();
@@ -46,7 +46,7 @@ function DeleteModal({ flight, handleCloseDelete, openDelete }) {
           color='error'
           sx={{ m: 2 }}
           onClick={() => {
-            handleDelete(_id);
+            handleDelete();
           }}>
           DELETE
         </Button>

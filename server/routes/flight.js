@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { deleteFlight, getFlights, searchFlights, addFlights, updateFlight, subscribeFlight, getFlight, getFlightByFlightNumber, unsubscribeFlight  } from '../controllers/flights.js';
+import { deleteFlight, getFlights, searchFlights, addFlights, updateFlight, subscribeFlight, getFlight, getFlightByFlightNumber, unsubscribeFlight, subscribeFlightSingle, unsubscribeFlightSingle  } from '../controllers/flights.js';
 
 const router = express.Router();
 
@@ -13,5 +13,7 @@ router.post('/subscribe', subscribeFlight);
 router.post('/unsubscribe', unsubscribeFlight);
 router.get('/flightId', getFlight);
 router.get('/flightNumber', getFlightByFlightNumber);
+router.post('/subscribeSingle', subscribeFlightSingle);
+router.post('/unsubscribeSingle', unsubscribeFlightSingle);
 
 export default router;
