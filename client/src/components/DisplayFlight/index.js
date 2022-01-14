@@ -53,8 +53,8 @@ function DisplayFlight() {
             <TableHead>
               <TableRow>
                 <TableCell align='center'>Flight Number</TableCell>
-                <TableCell align='center'>Arrival Time</TableCell>
                 <TableCell align='center'>Departure Time</TableCell>
+                <TableCell align='center'>Arrival Time</TableCell>
                 <TableCell align='center'>from</TableCell>
                 <TableCell align='center'>to</TableCell>
                 <TableCell align='center'>Seats Available Economy</TableCell>
@@ -62,7 +62,7 @@ function DisplayFlight() {
                 <TableCell align='center'>Seats Available First</TableCell>
                 <TableCell align='center'>Price Economy</TableCell>
                 <TableCell align='center'>Price Business</TableCell>
-                  <TableCell align='center'>Price First</TableCell>
+                <TableCell align='center'>Price First</TableCell>
                 <TableCell align='center'>Duration</TableCell>
                 <TableCell align='center'>Delete</TableCell>
                 <TableCell align='center'>Edit</TableCell>
@@ -75,9 +75,11 @@ function DisplayFlight() {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                   <TableCell align='center'>{row.flightNumber}</TableCell>
                   <TableCell align='center'>
+                    {formatDate(row.departureTime)}
+                  </TableCell>
+                  <TableCell align='center'>
                     {formatDate(row.arrivalTime)}
                   </TableCell>
-                  <TableCell align='center'>{formatDate(row.departureTime)}</TableCell>
                   <TableCell align='center'>{row.from}</TableCell>
                   <TableCell align='center'>{row.to}</TableCell>
                   <TableCell align='center'>{row.seatsAvailableEco}</TableCell>

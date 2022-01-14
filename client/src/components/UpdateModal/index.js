@@ -15,8 +15,6 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
     const _id = flight._id;
 
     //states
-    const [flightNumber, setFlightNumber] = useState("");
-    const [arrivalTime, setArrivalTime] = useState(moment());
     const [departureTime, setDepartureTime] = useState(moment());
     const [from, setFrom] = useState("");
     const [to, setTo] = useState("");
@@ -26,16 +24,11 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
   const [priceBus, setPriceBus] = useState("");
   const [priceEco, setPriceEco] = useState("");
   const [priceFirst, setPriceFirst] = useState("");
+  const [duration, setDuration] = useState("");
 
 
 
     //update methods
-     const handleChangeFlightNumber = (event) => {
-       setFlightNumber(event.target.value);
-     };
-     const handleChangeArrivalTime = (newValue) => {
-       setArrivalTime(moment.utc(moment.utc(newValue).format()));
-     };
      const handleChangeDepartureTime = (newValue) => {
        setDepartureTime(moment.utc(moment.utc(newValue).format()));
      };
@@ -63,6 +56,9 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
   const handleChangePriceFirst = (event) => {
     setPriceFirst(event.target.value);
   };
+  const handleChangeDuration = (event) => {
+    setDuration(event.target.value);
+  };
 
     
     //update flight
@@ -70,8 +66,7 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
                         axios
                           .post("http://localhost:8000/flight/update", {
                             _id: _id,
-                            flightNumber: flightNumber,
-                            arrivalTime: arrivalTime,
+                            arrivalTime: moment(departureTime).add(duration, "hours"),
                             departureTime: departureTime,
                             from: from,
                             to: to,
@@ -80,7 +75,8 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
                             seatsAvailableFirst: seatsAvailableFirst,
                             priceBus: priceBus,
                             priceEco: priceEco,
-                            priceFirst: priceFirst
+                            priceFirst: priceFirst,
+                            duration: duration,
                           })
                           .then(function (response) {
                             handleCloseEdit();
@@ -92,8 +88,6 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
 
 //set initial values
   useEffect(() => {
-        setFlightNumber(flight.flightNumber);
-        setArrivalTime(flight.arrivalTime);
         setDepartureTime(flight.departureTime);
         setFrom(flight.from);
         setTo(flight.to);
@@ -103,6 +97,7 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
     setPriceBus(flight.priceBus);
     setPriceEco(flight.priceEco);
     setPriceFirst(flight.priceFirst);
+    setDuration(flight.duration);
     }, [flight]);
 
 
@@ -130,22 +125,6 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
             <Typography variant='h4' gutterBottom color='primary'>
               Modify Flight
             </Typography>
-            <TextField
-              label='Flight Number'
-              value={flightNumber}
-              onChange={handleChangeFlightNumber}
-              defaultValue={flight.flightNumber}
-              sx={{ width: "40%", mb: "1em", mr: "1em" }}
-            />
-            <DateTimePicker
-              label='Arrival Time'
-              value={arrivalTime}
-              onChange={handleChangeArrivalTime}
-              renderInput={(params) => (
-                <TextField {...params} sx={{ width: "40%" }} />
-              )}
-              sx={{ width: "40%", mt: "1em" }}
-            />
             <DateTimePicker
               label='Departure Time'
               value={departureTime}
@@ -211,6 +190,13 @@ function UpdateModal({flight, openEdit, handleCloseEdit}) {
               value={priceFirst}
               onChange={handleChangePriceFirst}
               defaultValue={flight.priceFirst}
+              sx={{ width: "40%", mb: "1em", mr: "1em" }}
+            />
+            <TextField
+              label='Duration'
+              value={duration}
+              onChange={handleChangeDuration}
+              defaultValue={flight.duration}
               sx={{ width: "40%", mb: "1em", mr: "1em" }}
             />
             <Button
