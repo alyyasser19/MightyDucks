@@ -1,5 +1,4 @@
 import React from "react";
-import {useLocation} from "react-router-dom";
 import ConfirmFlightModal from "../../components/ConfirmBookingModal";
 
 import { Grid, Paper, Typography, Divider,Button } from "@mui/material";
@@ -16,13 +15,15 @@ import ViewSeats from "../ViewSeats";
 
 
 function Booking() {
-  const location = useLocation();
+  const flights = JSON.parse(localStorage.getItem("flight"));
+  const cabinClass = localStorage.getItem("cabinClass");
+  const passengerNo = localStorage.getItem("passengerNo");
 
-  const flight = location.state.flight;
-  const cabinClass = location.state.cabinClass;
-  const duration = location.state.flight.duration;
-  const passengerNo = location.state.passengerNo;
-  const userID = location.state.userID
+  const departureFlight = flights.departureFlight;
+  const returnFlight = flights.returnFlight;
+
+
+
   const [openConfirm, setOpenConfirm] = React.useState(false);
   const [userInfo, setUserInfo] = React.useState({})
   const [flightInfo, setFlightInfo] = React.useState({})
@@ -31,10 +32,21 @@ function Booking() {
   const [fees, setFees] = React.useState(0);
   const [seats, setSeats] = React.useState(false);
   
-    let from = flight.from;
-    let to = flight.to;
-    let departureDate = flight.departureTime;
-  let arrivalDate = flight.arrivalTime;
+  
+  let departureFlightNumber = departureFlight.flightNumber;
+  let departureFrom = departureFlight.from;
+  let departureTo = departureFlight.to;
+  let departureDepartureDate = departureFlight.departureTime;
+  let departureArrivalDate = departureFlight.arrivalTime;
+  let departureDuration = departureFlight.duration;
+
+
+  let returnFlightNumber = returnFlight.flightNumber;
+  let returnFrom = returnFlight.from;
+  let returnTo = returnFlight.to;
+  let returnDepartureDate = returnFlight.departureTime;
+  let returnArrivalDate = returnFlight.arrivalTime;
+  let returnDuration = returnFlight.duration;
 
 
   let baggage;
@@ -69,20 +81,23 @@ function Booking() {
   let price;
   if (cabinClass === "Eco")
   {
-    price = flight.priceEco;
+    price = parseFloat(departureFlight.priceEco) + parseFloat(returnFlight.priceEco);
   }
   else if (cabinClass === "Bus")
   {
-    price = flight.priceBus;
+    price = parseFloat(departureFlight.priceBus) + parseFloat(returnFlight.priceBus);
   }
   else if (cabinClass === "First")
   {
-    price = flight.priceFirst;
+    price = parseFloat(departureFlight.priceFirst) + parseFloat(returnFlight.priceFirst);
   }
 
   React.useEffect( () => {
     axios.post("http://localhost:8000/user/getUserByID", {
-            _id: userID
+    }, {
+      headers: {
+        "x-auth-token": localStorage.getItem("token")
+      }
           })
           .then((res) => {
               if(res.data){
@@ -91,7 +106,7 @@ function Booking() {
           ).catch((error) => {
             console.log(error)
           })
-    setFlightInfo(flight);
+    setFlightInfo(flights);
     setBaggageLimit(baggage)
     setCabin(fullClass)
     setFees(price * passengerNo)
@@ -100,7 +115,6 @@ function Booking() {
 
   
   
-  const handleOpenConfirm = () => setOpenConfirm(true);
   const handleCloseConfirm = () => setOpenConfirm(false);
   return (
     <>
@@ -126,7 +140,7 @@ function Booking() {
                     mt: "1em",
                     ml: "1em",
                   }}>
-                  {from}
+                  {departureFrom}
                 </Typography>
                 <ArrowRightAltIcon
                   sx={{
@@ -142,7 +156,7 @@ function Booking() {
                     gap: "2em",
                     mt: "1em",
                   }}>
-                  {to}
+                  {departureTo}
                 </Typography>
                 <Grid container direction='column' wrap='nowrap'>
                   <Typography
@@ -155,8 +169,8 @@ function Booking() {
                       mt: "-0.5em",
                       ml: "2em",
                     }}>
-                    {formatDate(departureDate)} - {formatDate(arrivalDate)},
-                    round trip ticket
+                    {formatDate(departureDepartureDate)} -{" "}
+                    {formatDate(departureArrivalDate)})}, round trip ticket
                   </Typography>
                 </Grid>
                 <Typography
@@ -203,7 +217,19 @@ function Booking() {
                     mt: "0.75em",
                     ml: "1.5em",
                   }}>
-                  {formatDate(departureDate)}
+                  Flight: {departureFlightNumber}
+                </Typography>
+                <Typography
+                  variant='h6'
+                  sx={{
+                    fontSize: "1em",
+                    color: "#ffffff",
+                    textAlign: "left",
+                    gap: "2em",
+                    mt: "0.75em",
+                    ml: "1.5em",
+                  }}>
+                  {formatDate(departureDepartureDate)}
                 </Typography>
                 <Typography
                   variant='h6'
@@ -235,7 +261,7 @@ function Booking() {
                       mt: "0.75em",
                       ml: "1.5em",
                     }}>
-                    {from}
+                    {departureFrom}
                   </Typography>
                   <Typography
                     variant='h6'
@@ -247,7 +273,7 @@ function Booking() {
                       mt: "1.1em",
                       ml: "1.9em",
                     }}>
-                    {formatDate(departureDate).slice(11, 20)}
+                    {formatDate(departureDepartureDate).slice(11, 20)}
                   </Typography>
                 </Grid>
                 <Grid container direction='column' wrap='nowrap'>
@@ -261,7 +287,7 @@ function Booking() {
                       mt: "0.75em",
                       ml: "2.5em",
                     }}>
-                    {to}
+                    {departureTo}
                   </Typography>
                   <Typography
                     variant='h6'
@@ -273,10 +299,7 @@ function Booking() {
                       mt: "1.1em",
                       ml: "2.9em",
                     }}>
-                    {formatDate(moment(departureDate).add(3, "h")).slice(
-                      11,
-                      20
-                    )}
+                    {formatDate(moment(departureArrivalDate)).slice(11, 20)}
                   </Typography>
                 </Grid>
                 <Grid container direction='column' wrap='nowrap'>
@@ -290,7 +313,7 @@ function Booking() {
                       mt: "0.75em",
                       ml: "5em",
                     }}>
-                    Flight duration: {duration} Hours
+                    Flight duration: {departureDuration} Hours
                   </Typography>
                 </Grid>
               </Grid>
@@ -316,8 +339,7 @@ function Booking() {
                     mt: "1.3em",
                     ml: "1.5em",
                   }}>
-                  {fullClass} | {" "}
-                  {baggage} Bag(s) | 23KG/Bag
+                  {fullClass} | {baggage} Bag(s) | 23KG/Bag
                 </Typography>
               </Grid>
             </Paper>
@@ -336,7 +358,19 @@ function Booking() {
                     mt: "0.75em",
                     ml: "1.5em",
                   }}>
-                  {formatDate(departureDate)}
+                  Flight: {returnFlightNumber}
+                </Typography>
+                <Typography
+                  variant='h6'
+                  sx={{
+                    fontSize: "1em",
+                    color: "#ffffff",
+                    textAlign: "left",
+                    gap: "2em",
+                    mt: "0.75em",
+                    ml: "1.5em",
+                  }}>
+                  {formatDate(returnDepartureDate)}
                 </Typography>
                 <Typography
                   variant='h6'
@@ -368,7 +402,7 @@ function Booking() {
                       mt: "0.75em",
                       ml: "1.5em",
                     }}>
-                    {to}
+                    {returnTo}
                   </Typography>
                   <Typography
                     variant='h6'
@@ -380,7 +414,7 @@ function Booking() {
                       mt: "1.1em",
                       ml: "1.9em",
                     }}>
-                    {formatDate(departureDate).slice(11, 20)}
+                    {formatDate(returnDepartureDate).slice(11, 20)}
                   </Typography>
                 </Grid>
                 <Grid container direction='column' wrap='nowrap'>
@@ -394,7 +428,7 @@ function Booking() {
                       mt: "0.75em",
                       ml: "2.5em",
                     }}>
-                    {from}
+                    {returnFrom}
                   </Typography>
                   <Typography
                     variant='h6'
@@ -406,10 +440,7 @@ function Booking() {
                       mt: "1.1em",
                       ml: "2.9em",
                     }}>
-                    {formatDate(moment(departureDate).add(3, "h")).slice(
-                      11,
-                      22
-                    )}
+                    {formatDate(moment(returnArrivalDate)).slice(11, 22)}
                   </Typography>
                 </Grid>
                 <Grid container direction='column' wrap='nowrap'>
@@ -423,7 +454,7 @@ function Booking() {
                       mt: "0.75em",
                       ml: "5em",
                     }}>
-                    Flight duration: {duration} Hours
+                    Flight duration: {returnDuration} Hours
                   </Typography>
                 </Grid>
               </Grid>
@@ -449,18 +480,12 @@ function Booking() {
                     mt: "1.3em",
                     ml: "1.5em",
                   }}>
-                  {fullClass}|{" "}
-                  {baggage} Bag(s) | 23KG/Bag
+                  {fullClass}| {baggage} Bag(s) | 23KG/Bag
                 </Typography>
               </Grid>
             </Paper>
           </Grid>
-          <Grid
-            container
-            direction='column'
-            wrap='nowrap'
-            //  sx={{ ml: 20, mr:20, mt: 10}}
-          >
+          <Grid container direction='column' wrap='nowrap'>
             <Paper
               elevation={24}
               variant='outlined'
@@ -524,19 +549,6 @@ function Booking() {
                 </Typography>
               </Grid>
             </Paper>
-            {/* <Button
-              variant='contained'
-              sx={{
-                width: "40%",
-                backgroundColor: "#C8655D",
-                fontSize: "1em",
-                mt: "2em",
-              }}
-              onClick={() => {
-                handleOpenConfirm();
-              }}>
-              Confirm Booking
-            </Button> */}
             <Button
               variant='contained'
               sx={{
@@ -564,12 +576,10 @@ function Booking() {
         </Grid>
       ) : (
         <ViewSeats
-          _id={userID}
           baggage={baggage}
           price={fees}
           N={passengerNo}
           classCabin={cabinClass}
-          flight={flight}
         />
       )}
     </>

@@ -6,7 +6,7 @@ import {
   TextField,
   InputAdornment,
   Button,
-  CircularProgress, 
+  CircularProgress,
 } from "@mui/material";
 import { PersonOutlineOutlined, HttpsOutlined } from "@mui/icons-material/";
 import IMG from "../../assets/Ticket.png";
@@ -32,64 +32,62 @@ function Login() {
   };
 
   const handleSubmit = () => {
-    if(username==="admin" && password==="admin"){
-      setAuthorizedAdmin(true);
-      setError(false);
-      setLoading(false);
-    } else {
-      setLoading(true);
-      axios.post("http://localhost:8000/user/login", {
+    setLoading(true);
+    axios
+      .post("http://localhost:8000/user/login", {
         Username: username,
-        Password: password
-          })
-          .then((res) => {
-            if (res.data) {
-                console.log(res.data);
-                setUserInfo(res.data);
-                setError(false);
-              setAuthorizedUser(true);
-              setLoading(false);
-              }
-            else {
-              setLoading(false);
-                setError(true)
-              }  
-          })
-        .catch((err) => {
-          setLoading(false)
-            setError(true);
-          });
+        Password: password,
+      })
+      .then((res) => {
+        if (res.data) {
+          localStorage.setItem("token", res.data.token);
+          console.log(res.data.user);
+          setUserInfo(res.data.user);
+
+          setError(false);
+          if (res.data.user.Type === "A") setAuthorizedAdmin(true);
+          else setAuthorizedUser(true);
+          console.log(authorizedAdmin, authorizedUser);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          setError(true);
         }
+      })
+      .catch((err) => {
+        setLoading(false);
+        setError(true);
+      });
   };
-  const handleForget = () => { };
-  
-  
+  const handleForget = () => {};
+
+  if (localStorage.getItem("token"))
+    return <Navigate to="/home" replace={true} />;
+
   if (loading)
-    return (<Grid container sx={{ mt: "10em", placeContent: "center" }}>
-      <CircularProgress size={100} />
-    </Grid>);
+    return (
+      <Grid container sx={{ mt: "10em", placeContent: "center" }}>
+        <CircularProgress size={100} />
+      </Grid>
+    );
 
   if (authorizedAdmin)
     return <Navigate to='/admin' state={{ user: "admin" }} />;
-  
-  if (authorizedUser)
-  {
-    return <Navigate to='/home' state={{ user: userInfo }} />;
 
+  if (authorizedUser) {
+    return <Navigate to='/home' state={{ user: userInfo }} />;
   }
-  
-    
-  
-  if(! loading && ! authorizedUser && ! authorizedAdmin)
+
+  if (!loading && !authorizedUser && !authorizedAdmin)
     return (
       <Grid
         container
         direction='row'
         sx={{
           backgroundColor: "primary.main",
-          height: "100vh",
+          height: "93.1vh",
           ml: "-1em",
-          width: {m:"102%", xs:"104%"},
+          width: { m: "102%", xs: "104%" },
         }}>
         <Grid
           sx={{
@@ -99,8 +97,9 @@ function Login() {
             paddingLeft: "16em",
             paddingTop: "2em",
             backgroundColor: "#d9d9d9",
-            backgroundImage: "linear-gradient(315deg, #d9d9d9 0%, #f6f2f2  74%)",
-            height: "100vh",
+            backgroundImage:
+              "linear-gradient(315deg, #d9d9d9 0%, #f6f2f2  74%)",
+            height: "93.1vh",
           }}>
           <img
             src={IMG}
@@ -109,12 +108,16 @@ function Login() {
             style={{
               position: "relative",
               right: "10em",
-              top: "4em"
-              
+              top: "4em",
             }}
           />
         </Grid>
-        <Grid sx={{ ml: {md:15, xs: 6}, mt: {xl:30, xs:10, l:10}, width:{xs:"85%", md:"auto"}}}>
+        <Grid
+          sx={{
+            ml: { md: 15, xs: 6 },
+            mt: { xl: 30, xs: 10, l: 10 },
+            width: { xs: "85%", md: "auto" },
+          }}>
           <Typography
             variant='subtitle1'
             sx={{
@@ -135,103 +138,106 @@ function Login() {
             }}>
             YOUR ACCOUNT
           </Typography>
-          <TextField
-            label='Email :'
-            value={username}
-            onChange={handleUsername}
-            type='email'
-            variant='standard'
-            color='white'
-            size='normal'
-            sx={{
-              color: "white.main !important",
-              width: "100%",
-              mt: "1em",
-              pt: "0.5em",
-              "& input": {
-                color: "white.main",
-                fontSize: "1.2em",
-              },
-              "& label": {
-                color: "white.main",
-                fontSize: "1.4em",
-                fontWeight: 100,
-                p5: "1em",
-              },
-              fontSize: "1em",
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <PersonOutlineOutlined sx={{ color: "white.main" }} />
-                </InputAdornment>
-              ),
-            }}
-            focused
-          />
-          <TextField
-            label='Password :'
-            value={password}
-            type='password'
-            onChange={handlePassword}
-            variant='standard'
-            color='white'
-            size='normal'
-            sx={{
-              color: "white.main !important",
-              width: "100%",
-              pt: "0.5em",
-              mt: "2em",
-              "& input": {
-                color: "white.main",
-                fontSize: "1.2em",
-              },
-              "& label": {
-                color: "white.main",
-                fontSize: "1.4em",
-                fontWeight: 100,
-                p5: "1em",
-              },
-              fontSize: "1em",
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position='start'>
-                  <HttpsOutlined sx={{ color: "white.main" }} />
-                </InputAdornment>
-              ),
-            }}
-            focused
-          />
-          <Grid
-            container
-            direction='row'
-            sx={{
-              mt: "2em",
-              justifyContent: "space-between",
-            }}>
-            <Button
-              variant='contained'
+          <form>
+            <TextField
+              label='Email :'
+              value={username}
+              onChange={handleUsername}
+              type='email'
+              variant='standard'
               color='white'
-              type='submit'
-              size='medium'
+              size='normal'
               sx={{
-                color: "primary.main",
+                color: "white.main !important",
+                width: "100%",
+                mt: "1em",
+                pt: "0.5em",
+                "& input": {
+                  color: "white.main",
+                  fontSize: "1.2em",
+                },
+                "& label": {
+                  color: "white.main",
+                  fontSize: "1.4em",
+                  fontWeight: 100,
+                  p5: "1em",
+                },
+                fontSize: "1em",
               }}
-              onClick={handleSubmit}>
-              LOGIN
-            </Button>
-            <Button
-              variant='text'
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <PersonOutlineOutlined sx={{ color: "white.main" }} />
+                  </InputAdornment>
+                ),
+              }}
+              focused
+            />
+            <TextField
+              label='Password :'
+              value={password}
+              type='password'
+              onChange={handlePassword}
+              variant='standard'
               color='white'
-              size='medium'
+              size='normal'
               sx={{
-                color: "white.main",
+                color: "white.main !important",
+                width: "100%",
+                pt: "0.5em",
+                mt: "2em",
+                "& input": {
+                  color: "white.main",
+                  fontSize: "1.2em",
+                },
+                "& label": {
+                  color: "white.main",
+                  fontSize: "1.4em",
+                  fontWeight: 100,
+                  p5: "1em",
+                },
+                fontSize: "1em",
               }}
-              onClick={handleForget}>
-              FORGOT PASSWORD?
-            </Button>
-          </Grid>
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position='start'>
+                    <HttpsOutlined sx={{ color: "white.main" }} />
+                  </InputAdornment>
+                ),
+              }}
+              focused
+            />
+            <Grid
+              container
+              direction='row'
+              sx={{
+                mt: "2em",
+                justifyContent: "space-between",
+              }}>
+              <Button
+                variant='contained'
+                color='white'
+                type='submit'
+                size='medium'
+                sx={{
+                  color: "primary.main",
+                }}
+                onClick={handleSubmit}>
+                LOGIN
+              </Button>
+
+              <Button
+                variant='text'
+                color='white'
+                size='medium'
+                sx={{
+                  color: "white.main",
+                }}
+                onClick={handleForget}>
+                FORGOT PASSWORD?
+              </Button>
+            </Grid>
+          </form>
           <Grid
             container
             direction='row'

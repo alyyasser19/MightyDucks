@@ -6,7 +6,7 @@ export class index extends Component {
   render() {
     return (
       <Typography variant='h1' sx={style}>
-        Ducky
+        DL
       </Typography>
     );
   }

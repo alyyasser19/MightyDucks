@@ -4,7 +4,7 @@ import { AirplanemodeActive,FlightTakeoff, FlightLand } from "@mui/icons-materia
 import moment from 'moment';
 import formatDate from '../../API/formatDate';
 
-function FlightFromTo({ from, to, date, duration }) {
+function FlightFromTo({ from, to, date, duration, flightNumber }) {
 
   const dateFrom = formatDate(date);
   const dateTo = formatDate(moment(date).add(duration, "h"));
@@ -23,26 +23,35 @@ function FlightFromTo({ from, to, date, duration }) {
         container
         direction='row'
         spacing={3}
-        sx={{ width: "100%", height: "auto" }}
+        sx={{ width: "100%", height: "auto",mb:2, mt:2 }}
         wrap='nowrap'>
         <Grid
           item
           direction='column'
-          sx={{ width: "20%", textAlign: "center", height: "auto" }}>
+          sx={{ width: "20%", textAlign: "center", height: "auto", mt: -2.9 }}>
+          <Typography variant='h6' sx={{ color: "secondary.main" }}>
+            {flightNumber}
+          </Typography>
           <FlightTakeoff sx={{ fontSize: "3em", color: "primary.main" }} />
           <Typography
             variant='subtitle1'
-            sx={{ fontWeight: 600, fontSize: "1.1em" }}>
+            sx={{ fontWeight: 500, fontSize: "1em" }}>
             {dayFrom}
           </Typography>
           <Typography
             variant='subtitle1'
-            sx={{ fontWeight: 600, fontSize: "1.2em" }}>
-           {timeFrom}
+            sx={{ fontWeight: 400, fontSize: "0.9em", mt: -1 }}>
+            {timeFrom}
           </Typography>
           <Typography
             variant='subtitle2'
-            sx={{ fontWeight: 600, fontSize: "1.2em", opacity: 0.38 }}>
+            sx={{
+              fontWeight: 600,
+              fontSize: "1.2em",
+              opacity: 0.38,
+              mt: -0.5,
+              pb:1
+            }}>
             {from}
           </Typography>
         </Grid>
@@ -89,17 +98,23 @@ function FlightFromTo({ from, to, date, duration }) {
           <FlightLand sx={{ fontSize: "3em", color: "primary.main" }} />
           <Typography
             variant='subtitle1'
-            sx={{ fontWeight: 600, fontSize: "1.1em" }}>
+            sx={{ fontWeight: 500, fontSize: "1em" }}>
             {dayTo}
           </Typography>
           <Typography
             variant='subtitle1'
-            sx={{ fontWeight: 600, fontSize: "1.2em" }}>
+            sx={{ fontWeight: 400, fontSize: "0.9em", mt: -1 }}>
             {timeTo}
           </Typography>
           <Typography
             variant='subtitle2'
-            sx={{ fontWeight: 600, fontSize: "1.2em", opacity: 0.38, mb: 3 }}>
+            sx={{
+              fontWeight: 600,
+              fontSize: "1.2em",
+              opacity: 0.38,
+              mt: -0.5,
+              pb:1
+            }}>
             {to}
           </Typography>
         </Grid>

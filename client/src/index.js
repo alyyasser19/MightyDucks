@@ -11,7 +11,8 @@ import Home from "./pages/Home";
 import User from "./pages/UserProfile";
 import UserFlights from "./pages/UserFlights";
 import EditProfile from "./components/EditProfile";
-import Booking from "./pages/BookingV";
+import BookingT from "./pages/BookingT";
+import BookingS from "./pages/BookingS";
 import Register from "./pages/Register";
 import ErrorPage from "./pages/ErrorPage";
 import { ToastContainer } from 'react-toastify';
@@ -33,7 +34,8 @@ ReactDOM.render(
           <Route path='user' element={<User />} />
           <Route path='user/flights' element={<UserFlights />} />
           <Route path='user/modify/:id' element={<EditProfile />} />
-          <Route path='home/booking/:id' element={<Booking />} />
+          <Route path='home/booking/roundtrip/:id' element={<BookingT />} />
+          <Route path='home/booking/oneway/:id' element={<BookingS />} />
           <Route path='user/flights/itinerary' element={<ReservedFlight />} />
           <Route path='register' element={<Register />} />
           <Route element={<ErrorPage />} path='/error' />

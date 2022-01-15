@@ -15,17 +15,31 @@ function Home() {
   const [error, setError] = React.useState(false);
   const [passengerNo, setPassengerNo] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
+  const [checked, setChecked] = React.useState(true);
+  const [type, setType] = React.useState("");
+  const [curResults, setCurResults] = React.useState("");
+
+  const handleChangeChecked = (event) => {
+    setChecked(event.target.checked);
+
+  };
 
   useEffect(() => {
-   let token = localStorage.getItem("token");
+    if (checked) setType("roundtrip");
+    else setType("oneway");
+
+    let token = localStorage.getItem("token");
     if (token) {
       axios
-        .post("http://localhost:8000/user/getUserByID", {
-}, {
-  headers: {
-    'x-auth-token': token 
+        .post(
+          "http://localhost:8000/user/getUserByID",
+          {},
+          {
+            headers: {
+              "x-auth-token": token,
+            },
           }
-        })
+        )
         .then((res) => {
           if (res.data) {
             setUser(res.data);
@@ -35,11 +49,10 @@ function Home() {
         .catch((err) => {
           setError(true);
         });
+    } else {
+      return navigate("/");
     }
-    else {
-      return navigate("/login");}
-  }, [ Location, navigate ]);
-  
+  }, [Location, navigate, checked]);
 
   if (loading)
     return (
@@ -47,11 +60,8 @@ function Home() {
         container
         justify='center'
         alignItems='center'
-        style={{ height: "90vh", placeContent:'center'  }}>
-        <CircularProgress
-          size={100}
-          style={{ alignSelf: "center"}}
-        />
+        style={{ height: "90vh", placeContent: "center" }}>
+        <CircularProgress size={100} style={{ alignSelf: "center" }} />
       </Grid>
     );
 
@@ -63,6 +73,7 @@ function Home() {
     from,
     to
   ) => {
+    setCurResults(type);
     axios
       .post("http://localhost:8000/user/searchFlights", {
         arrivalDate: arrivalDate,
@@ -71,8 +82,10 @@ function Home() {
         class: Class,
         from: from,
         to: to,
+        type: type,
       })
       .then((res) => {
+        console.log(res.data);
         setFlights(res.data);
         setCabinClass(Class);
         setPassengerNo(passengers);
@@ -90,12 +103,19 @@ function Home() {
           Please Enter All Search Requirements
         </Typography>
       )}
-      <UserSearch search={handleSearch} userID={user._id} />
+      <UserSearch
+        search={handleSearch}
+        checked={checked}
+        handleChangeChecked={handleChangeChecked}
+        userID={user._id}
+      />
       <SearchResults
         flights={flights}
         userID={user._id}
         cabinClass={cabinClass}
         passengerNo={passengerNo}
+        checked={checked}
+        type={curResults}
       />
     </Grid>
   );

@@ -8,7 +8,8 @@ import useScrollTrigger from "@mui/material/useScrollTrigger";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import Logo from "../Logo";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 //fixing navbar as we scroll
 function ElevationScroll(props) {
@@ -26,27 +27,42 @@ function ElevationScroll(props) {
 export default function Navbar(props) {
   const navigate= useNavigate();
   const [auth, setAuth] = React.useState(true);
+  const [admin, setAdmin] = React.useState(false);
+  const [normal, setNormal] = React.useState(false);
+  const [user, setUser] = React.useState("");
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const location = useLocation();
   const [curUser, setCurUser] = React.useState({});
+
+  const token = localStorage.getItem("token");
+
   React.useEffect(() => {
-        if (location.pathname === "/") {
-          setCurUser({ state: "not logged in" });
-        } if(location.pathname === '/home') {
-          setCurUser(location.state.user);
-        }
-    if (
-      (location.pathname !== "/admin" &&
-      location.pathname !== "/" )  &&
-      localStorage.getItem("token")
-    ) {
-      setAuth(true);
+    console.log("token", token);
+    if (token) {
+      axios.post("http://localhost:8000/user/getUserByID", {
+      }, {
+        headers: {
+          "x-auth-token": token,
+        },
+      })
+        .then((res) => {
+          setAuth(true);
+          setCurUser(res.data);
+          if (res.data.Type==="A") {
+            setAdmin(true);
+          }
+          else {
+            setNormal(true);
+          }
+        })
+        .catch((err) => {
+          setAuth(false);
+        });
     } else {
       setAuth(false);
+      setAdmin(false);
+      setNormal(false);
     }
-  }, [location]);
-
-
+  }, [token,auth]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -56,12 +72,15 @@ export default function Navbar(props) {
   return (
     <Box sx={{ flexGrow: 1, height: "5em" }}>
       <ElevationScroll {...props}>
-        <AppBar color='offWhite' position='fixed'>
+        <AppBar
+          color='white'
+          position='fixed'
+          sx={{ height: "6em", borderBottom: "ridge" }}>
           <Toolbar>
-            <Link to={"home"} state={{ user: curUser }}>
+            <Link to={admin ? "admin" : "home"}>
               <Logo />
             </Link>
-            {auth && (
+            {normal && auth && (
               <Grid
                 container
                 justify='flex-end'
@@ -90,7 +109,11 @@ export default function Navbar(props) {
                   variant='text'
                   size='large'
                   color='menuItem'
-                  onClick={() => navigate("/", { replace: true })}
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    setAuth(false);
+                    navigate("/", { replace: true });
+                  }}
                   sx={{
                     width: "20em",
                     display: {
@@ -102,14 +125,18 @@ export default function Navbar(props) {
                 </Button>
               </Grid>
             )}
-            {!auth && (
+            {admin && auth && (
               <Grid
                 container
                 justify='flex-end'
                 alignItems='center'
                 sx={{ ml: 2 }}>
                 <Button
-                  onClick={() => navigate("/", { replace: true })}
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    setAuth(false);
+                    navigate("/", { replace: true });
+                  }}
                   variant='text'
                   size='large'
                   color='menuItem'
@@ -120,7 +147,7 @@ export default function Navbar(props) {
                       md: "block",
                     },
                   }}>
-                  LOGIN
+                  LOGOUT
                 </Button>
               </Grid>
             )}
@@ -131,7 +158,7 @@ export default function Navbar(props) {
               alignItems='center'>
               {auth && (
                 <div>
-                  <Link to='user' state={{ userID: curUser._id }}>
+                  <Link to='user'>
                     <IconButton
                       size='large'
                       aria-label='account of current user'

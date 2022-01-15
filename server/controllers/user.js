@@ -698,50 +698,142 @@ export const getFlightsUser = async (req, res) => {
 };
 
 export const searchFlights = async (req, res) => {
-  let query = {};
+  console.log(req.body);
+  if (req.body.type === "oneway") {
+    let query = {};
 
-  if (req.body.from) {
-    query.from = req.body.from;
-  }
-  if (req.body.to) {
-    query.to = req.body.to;
-  }
-  if (req.body.departureDate) {
-    query.departureTime = req.body.departureDate;
-  }
-  if (req.body.arrivalDate) {
-    query.arrivalTime = req.body.arrivalDate;
-  }
-  if (req.body.price) {
-    query.price = req.body.price;
-  }
-  if (req.body.baggage) {
-    query.baggage = req.body.baggage;
-  }
+    if (req.body.from) {
+      query.from = req.body.from;
+    }
+    if (req.body.to) {
+      query.to = req.body.to;
+    }
+    if (req.body.departureDate) {
+      query.departureTime = req.body.departureDate;
+    }
+    if (req.body.price) {
+      query.price = req.body.price;
+    }
+    if (req.body.baggage) {
+      query.baggage = req.body.baggage;
+    }
+    console.log(query);
 
-  if (!req.body.from || !req.body.to || !req.body.class) {
-    res.status(400).json("Invalid Input!");
-    return;
-  }
-  let flights = [];
-  axios
-    .post("http://localhost:8000/flight/search", query)
-    .then(async (response) => {
-      if (response.data.length === 0) {
-        res.status(200).json(flights);
-      } else {
-        for (const flight in response.data) {
-          if (
-            response.data[flight][`seatsAvailable${req.body.class}`] >=
-            req.body.passengers
-          ) {
-            flights.push(response.data[flight]);
+    if (!req.body.from || !req.body.to || !req.body.class) {
+      res.status(400).json("Invalid Input!");
+      return;
+    }
+    let flights = [];
+    axios
+      .post("http://localhost:8000/flight/search", query)
+      .then(async (response) => {
+        if (response.data.length === 0) {
+          res.status(200).json(flights);
+        } else {
+          for (const flight in response.data) {
+            if (
+              response.data[flight][`seatsAvailable${req.body.class}`] >=
+              req.body.passengers
+            ) {
+              flights.push(response.data[flight]);
+            }
           }
+          res.status(200).json(flights);
         }
-        res.status(200).json(flights);
-      }
-    })
-    .catch((err) => res.status(410).json(err));
+      })
+      .catch((err) => res.status(410).json(err));
+  }
+  else if (req.body.type === "roundtrip") {
+    console.log("roundTrip");
+    let query = {};
+
+    if (req.body.from) {
+      query.from = req.body.from;
+    }
+    if (req.body.to) {
+      query.to = req.body.to;
+    }
+    if (req.body.departureDate) {
+      query.departureTime = req.body.departureDate;
+    }
+    if (req.body.price) {
+      query.price = req.body.price;
+    }
+    if (req.body.baggage) {
+      query.baggage = req.body.baggage;
+    }
+
+    if (!req.body.from || !req.body.to || !req.body.class) {
+      res.status(400).json("Invalid Input!");
+      return;
+    }
+    let flightsDep = [];
+    let flightsRet = [];
+    axios
+      .post("http://localhost:8000/flight/search", query)
+      .then(async (response) => {
+        console.log("Departure Flights: ",response.data);
+        if (response.data.length === 0) {
+          res.status(200).json(flightsDep);
+        } else {
+          for (const flight in response.data) {
+            if (
+              response.data[flight][`seatsAvailable${req.body.class}`] >=
+              req.body.passengers
+            ) {
+              flightsDep.push(response.data[flight]);
+            }
+          }
+          query.departureTime = req.body.returnDate;
+          query.to = req.body.from;
+          query.from = req.body.to;
+          axios
+            .post("http://localhost:8000/flight/search", query)
+            .then(async (response) => {
+              console.log("Return Flights: ",response.data);
+              if (response.data.length === 0) {
+                res.status(200).json(flightsDep);
+              } else {
+                for (const flight in response.data) {
+                  if (
+                    response.data[flight][`seatsAvailable${req.body.class}`] >=
+                    req.body.passengers
+                  ) {
+                    flightsRet.push(response.data[flight]);
+                  }
+                }
+
+                //Get all possible combinations of flights
+                let combinations = [];
+                for (const flightDep in flightsDep) {
+                  for (const flightRet in flightsRet) {
+                    combinations.push({
+                      departureFlight: flightsDep[flightDep],
+                      returnFlight: flightsRet[flightRet],
+                    });
+                  }
+                }
+                console.log("Combinations: ", combinations);
+                //Filter out combinations that don't have enough seats
+                let filteredCombinations = [];
+                for (const combination in combinations) {
+                  if (
+                    combinations[combination].departureFlight[
+                      `seatsAvailable${req.body.class}`
+                    ] >= req.body.passengers
+                  ) {
+                    filteredCombinations.push(combinations[combination]);
+                  }
+                }
+                console.log(filteredCombinations);
+                res.status(200).json(filteredCombinations);
+              }
+            })
+            .catch((err) => res.status(410).json(err));
+        }
+      })
+      .catch((err) => res.status(410).json(err));
+  }
 };
 
 export const loginUser = async (req, res) => {
