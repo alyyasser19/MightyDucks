@@ -1,4 +1,4 @@
-import { React, useState } from "react";
+import { React, useState, useEffect } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import {
   Grid,
@@ -23,6 +23,23 @@ function Login() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState({});
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    axios
+      .post("http://localhost:8000/user/verifyUser", {
+        token: localStorage.getItem("token"),
+      })
+      .then((response) => {
+        console.log(response.data);
+        if (response.data) {
+          setLoggedIn(true);
+        }
+      })
+      .catch((err) => {
+        setLoggedIn(false);
+      });
+  }, []);
 
   const handleUsername = (e) => {
     setUsername(e.target.value);
@@ -61,7 +78,7 @@ function Login() {
   };
   const handleForget = () => {};
 
-  if (localStorage.getItem("token"))
+  if (loggedIn)
     return <Navigate to="/home" replace={true} />;
 
   if (loading)

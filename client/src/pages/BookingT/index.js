@@ -15,6 +15,7 @@ import ViewSeats from "../ViewSeats";
 
 
 function Booking() {
+  console.log("Booking")
   const flights = JSON.parse(localStorage.getItem("flight"));
   const cabinClass = localStorage.getItem("cabinClass");
   const passengerNo = localStorage.getItem("passengerNo");
@@ -339,7 +340,7 @@ function Booking() {
                     mt: "1.3em",
                     ml: "1.5em",
                   }}>
-                  {fullClass} | {baggage} Bag(s) | 23KG/Bag
+                  {fullClass} | {baggage} Bag(s) / Person | 23KG/Bag
                 </Typography>
               </Grid>
             </Paper>
@@ -580,6 +581,8 @@ function Booking() {
           price={fees}
           N={passengerNo}
           classCabin={cabinClass}
+          flights={flights}
+          type={"roundtrip"}
         />
       )}
     </>

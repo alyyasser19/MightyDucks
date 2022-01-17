@@ -274,10 +274,7 @@ function Booking() {
                       mt: "1.1em",
                       ml: "2.9em",
                     }}>
-                    {formatDate(moment(arrivalDate)).slice(
-                      11,
-                      20
-                    )}
+                    {formatDate(moment(arrivalDate)).slice(11, 20)}
                   </Typography>
                 </Grid>
                 <Grid container direction='column' wrap='nowrap'>
@@ -317,7 +314,8 @@ function Booking() {
                     mt: "1.3em",
                     ml: "1.5em",
                   }}>
-                  {fullClass} | {baggage} Bag(s) | 23KG/Bag
+                  {fullClass} | {baggage} {baggage === 1 ? "Bag" : "Bags"} /
+                  Person | 23KG/Bag
                 </Typography>
               </Grid>
             </Paper>
@@ -417,7 +415,8 @@ function Booking() {
           price={fees}
           N={passengerNo}
           classCabin={cabinClass}
-          flight={flight}
+          flights={flight}
+          type={"oneway"}
         />
       )}
     </>

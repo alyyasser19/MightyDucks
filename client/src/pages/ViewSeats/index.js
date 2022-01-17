@@ -1,382 +1,481 @@
-import React, {useState, useEffect} from 'react'
-import { Grid, Button } from "@mui/material";
-import AirlineSeatReclineExtraIcon from '@mui/icons-material/AirlineSeatReclineExtra';
-import AirlineSeatReclineNormalIcon from '@mui/icons-material/AirlineSeatReclineNormal';
-import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import {toast} from "react-toastify";
-import axios from 'axios';
-import { Navigate } from 'react-router-dom';
-import ConfirmFlightModal from '../../components/ConfirmBookingModal';
+import React, { useState, useEffect } from "react";
+import { Grid, Button, Typography } from "@mui/material";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { Navigate, useNavigate } from "react-router-dom";
+import ConfirmFlightModal from "../../components/ConfirmBookingModal";
+import SeatGrid from "../../components/seatsGrid";
 
-function ViewSeats({_id, flight, classCabin, N, price, baggage}) {
-  const [first, setFirst] = useState(flight.seats.filter((seat)=>{return seat.seatType.toLowerCase()==="first"}));
-  const [economy, setEconomy] = useState(flight.seats.filter((seat)=>{return seat.seatType.toLowerCase()==="eco"}));
-  const [business, setBusiness] = useState(flight.seats.filter((seat)=>{return seat.seatType.toLowerCase()==="bus"}));
+function ViewSeats({ _id, flights, classCabin, N, price, baggage, type }) {
+  console.log(flights, classCabin, N, price, baggage, type);
+
+  const navigate = useNavigate();
+
+  //Construct the seat map
+  const seats = [];
+  const seatsR = [];
+  let flight;
+  let flightR;
+  if (type === "oneway") flight = flights;
+  if (type === "roundtrip") {
+    flight = flights.departureFlight;
+    flightR = flights.returnFlight;
+
+    for (let i = 0; i < flightR.seats.length; i++) {
+      seatsR.push(flightR.seats[i].split(","));
+    }
+  }
+
+  for (let i = 0; i < flight.seats.length; i++) {
+    seats.push(flight.seats[i].split(","));
+  }
+  //First Class
+  const [first, setFirst] = useState(
+    seats.filter((seat) => {
+      return seat[1] === "First";
+    })
+  );
+  const [firstR, setFirstR] = useState(
+    seatsR.filter((seat) => {
+      return seat[1] === "First";
+    })
+  );
+  console.log(seatsR)
+  console.log(seats)
+  //Economy Class
+  const [economy, setEconomy] = useState(
+    seats.filter((seat) => {
+      return seat[1] === "Eco";
+    })
+  );
+  const [economyR, setEconomyR] = useState(
+    seatsR.filter((seat) => {
+      return seat[1] === "Eco";
+    })
+  );
+
+  //Business Class
+  const [business, setBusiness] = useState(
+    seats.filter((seat) => {
+      return seat[1] === "Bus";
+    })
+  );
+  const [businessR, setBusinessR] = useState(
+    seatsR.filter((seat) => {
+      return seat[1] === "Bus";
+    })
+  );
+
   const [done, setDone] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [selectedR, setSelectedR] = useState([]);
   const [isBook, setBook] = useState(false);
   const [isConfirm, setConfirm] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [redirect, setRedirect] = useState(false);
 
   const handleCloseConfirm = () => {
     setOpenConfirm(false);
     setConfirm(false);
-    console.log(isConfirm)
-  }
-  // const [count, setCount] = useState(0);
-  let user;
-  var f=[[]];
-  var e=[[]];
-  var b=[[]];
+    console.log(isConfirm);
+  };
 
-  const handleSemiConfirm = () => { 
-setOpenConfirm(true);
-  }
- 
+  let f = [[]];
+  let fR = [[]];
+  let e = [[]];
+  let eR = [[]];
+  let b = [[]];
+  let bR = [[]];
+
+  const handleSemiConfirm = () => {
+    setOpenConfirm(true);
+  };
+
   const handleConfirm = () => {
-    if(selected.length<N){
-      toast.warn('Not enough seats selected', {
-        position: toast.POSITION.BOTTOM_RIGHT
-      })
-    }
-    else {
-      axios
-        .post("http://localhost:8000/user/addFlight", {
-            _id:_id,
-            flightNumber: flight.flightNumber,
-            price: price*selected.length,
-            baggage,
-            seats:selected,
-            bookingNumber: Date.now(),
-            class:classCabin==="Eco"?"Economy":classCabin==="Bus"?"Business":"First"
-          })
-          .then(function (response) {
-            console.log(response);
-            toast.success('Booking Successful', {
-              position: toast.POSITION.BOTTOM_RIGHT
-            }) 
-            setTimeout(function () {
-              setBook(true);
-            }, 2000);
-          })
-          .catch(function (error) {
-            if(error)
-            toast.warn('You have already booked this flight', {
-              position: toast.POSITION.BOTTOM_RIGHT
-            })
-                        setTimeout(function () {
-                          setBook(true);
-                        }, 2000);
-          });
-    }
-  }
-  const handleClick=(seat)=>{
-    if(selected.includes(seat.seatNumber)){
-      const x = selected.filter((s)=>{
-        return s!==seat.seatNumber;
-      })
-      setSelected(x);
-    }
-    else if(seat.reserved){  
-      toast.error('Seat already taken', {
-      position: toast.POSITION.BOTTOM_RIGHT
-    })
+    if (selected.length < parseInt(N)) {
+      toast.warn("Not enough seats selected", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    } else {
+      // axios
+      //   .post(
+      //     "http://localhost:8000/user/addSingleFlight",
+      //     {
+      //       flightNumber: flight.flightNumber,
+      //       seats: selected,
+      //       bookingNumber: Date.now(),
+      //     },
+      //     {
+      //       headers: {
+      //         "x-auth-token": localStorage.getItem("token"),
+      //       },
+      //     }
+      //   )
+      //   .then(function (response) {
+      //     console.log(response);
+      //     const token = localStorage.getItem("token");
+      //     localStorage.clear();
+      //     localStorage.setItem("token", token);
+      //     toast.success("Booking Successful", {
+      //       position: toast.POSITION.BOTTOM_RIGHT,
+      //     });
+      //     setTimeout(function () {
+      //       setBook(true);
+      //     }, 2000);
+      //   })
+      //   .catch(function (error) {
+      //     if (error)
+      //       toast.warn("You have already booked this flight", {
+      //         position: toast.POSITION.BOTTOM_RIGHT,
+      //       });
+      //     setTimeout(function () {
+      //       setBook(true);
+      //     }, 2000);
+      //   });
+      const query = {
+        flightNumber: flight.flightNumber,
+        seats: selected,
+        bookingNumber: Date.now(),
+      }
+      localStorage.setItem("query", JSON.stringify(query));
+      localStorage.setItem("price", price);
+      localStorage.setItem("type", type);
 
+      let queryR;
+      if (type === "roundtrip") {
+        queryR = {
+          flightNumber: flightR.flightNumber,
+          seats: selectedR,
+          bookingNumber: Date.now(),
+        }
+        localStorage.setItem("queryR", JSON.stringify(queryR));
+        localStorage.setItem("priceR", price);
+      }
+
+      navigate(`/user/payment/${flight.flightNumber}`, {
+        replace: true,
+      });
     }
-    else if(selected.length===N){
-      toast.warn('You have selected the maximum number of seats', {
-        position: toast.POSITION.BOTTOM_RIGHT
-      })
+  };
+  const handleConfirmR = () => {
+    if (selectedR.length < parseInt(N)) {
+      toast.warn("Not enough seats selected", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    } else {
+      axios
+        .post(
+          "http://localhost:8000/user/addSingleFlight",
+          {
+            flightNumber: flightR.flightNumber,
+            seats: selectedR,
+            bookingNumber: Date.now(),
+          },
+          {
+            headers: {
+              "x-auth-token": localStorage.getItem("token"),
+            },
+          }
+        )
+        .then(function (response) {
+          console.log(response);
+          const token = localStorage.getItem("token");
+          localStorage.clear();
+          localStorage.setItem("token", token);
+          toast.success("Booking Successful", {
+            position: toast.POSITION.BOTTOM_RIGHT,
+          });
+          setTimeout(function () {
+            setBook(true);
+          }, 2000);
+        })
+        .catch(function (error) {
+          if (error)
+            toast.warn("You have already booked this flight", {
+              position: toast.POSITION.BOTTOM_RIGHT,
+            });
+          setTimeout(function () {
+            setBook(true);
+          }, 2000);
+        });
     }
-    else{
-      const x = selected.concat([seat.seatNumber]);
+  };
+
+  const handleClick = (seat) => {
+    console.log(seat);
+    console.log(selected);
+    if (selected.includes(seat.toString())) {
+      const x = selected.filter((s) => {
+        return s !== seat.toString();
+      });
+      console.log(x);
+      setSelected(x);
+    } else if (seat[2] === "R") {
+      toast.error("Seat already taken", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    } else if (selected.length === parseInt(N)) {
+      toast.warn("You have selected the maximum number of seats", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    } else {
+      const x = selected.concat(seat.toString());
+      console.log(selected.length);
+      console.log(selected.length === N);
+      console.log(x);
       setSelected(x);
     }
-    
-  }
+  };
+  const handleClickR = (seat) => {
+    console.log(seat);
+    console.log(selectedR);
+    if (selectedR.includes(seat.toString())) {
+      const x = selectedR.filter((s) => {
+        return s !== seat.toString();
+      });
+      console.log(x);
+      setSelectedR(x);
+    } else if (seat[2] === "R") {
+      toast.error("Seat already taken", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    } else if (selectedR.length === parseInt(N)) {
+      toast.warn("You have selected the maximum number of seats", {
+        position: toast.POSITION.BOTTOM_RIGHT,
+      });
+    } else {
+      const x = selectedR.concat(seat.toString());
+      console.log(selectedR.length);
+      console.log(selectedR.length === N);
+      console.log(x);
+      setSelectedR(x);
+    }
+  };
 
   function func() {
-   
-  if(!done){
-  for(let i=0; i<first.length; i+=8){
-    let y=[];
-    for(let j=0; j<8; j++){
-      if(i+j<first.length){
-        y.push(first[i+j]);}
-      else{
-        break;
+    console.log("lefunc");
+    if (!done) {
+      if (type === "roundtrip") {
+        console.log(type);
+        for (let i = 0; i < firstR.length; i+=8) {
+          let y = [];
+          for (let j = 0; j < 8; j++) {
+            if (i + j < firstR.length) {
+              y.push(firstR[i + j]);
+            } else {
+              break;
+            }
+          }
+          fR.push(y);
+        }
+        setFirstR(fR);
+        console.log("firstR", fR);
+
+        for (let i = 0; i < businessR.length; i += 8) {
+          let y = [];
+          for (let j = 0; j < 8; j++) {
+            if (i + j < businessR.length) {
+              y.push(businessR[i + j]);
+            } else {
+              break;
+            }
+          }
+          bR.push(y);
+        }
+        setBusinessR(bR);
+        console.log("businessR", bR);
+
+        for (let i = 0; i < economyR.length; i += 8) {
+          let y = [];
+          for (let j = 0; j < 8; j++) {
+            if (i + j < economyR.length) {
+              y.push(economyR[i + j]);
+            } else {
+              break;
+            }
+          }
+          eR.push(y);
+        }
+        setEconomyR(eR);
+        console.log("economyR", eR);
       }
 
-    }
-    f.push(y);
-    
-  }
-  setFirst(f);
-
- 
-
-  for(let i=0; i<business.length; i+=8){
-    let y=[];
-    for(let j=0; j<8; j++){
-      if(i+j<business.length){
-        y.push(business[i+j]);}
-      else{
-        break;
+      for (let i = 0; i < first.length; i += 8) {
+        let y = [];
+        for (let j = 0; j < 8; j++) {
+          if (i + j < first.length) {
+            y.push(first[i + j]);
+          } else {
+            break;
+          }
+        }
+        f.push(y);
       }
+      setFirst(f);
+      console.log("first", f);
 
-    }
-    b.push(y);
-  }
-  setBusiness(b);
-
-  for(let i=0; i<economy.length; i+=8){
-    let y=[];
-    for(let j=0; j<8; j++){
-      if(i+j<economy.length){
-        y.push(economy[i+j]);}
-      else{
-        break;
+      for (let i = 0; i < business.length; i += 8) {
+        let y = [];
+        for (let j = 0; j < 8; j++) {
+          if (i + j < business.length) {
+            y.push(business[i + j]);
+          } else {
+            break;
+          }
+        }
+        b.push(y);
       }
+      setBusiness(b);
 
+      for (let i = 0; i < economy.length; i += 8) {
+        let y = [];
+        for (let j = 0; j < 8; j++) {
+          if (i + j < economy.length) {
+            y.push(economy[i + j]);
+          } else {
+            break;
+          }
+        }
+        e.push(y);
+      }
+      setEconomy(e);
+      setDone(true);
     }
-    e.push(y);
   }
-  setEconomy(e);
-  setDone(true);
+  useEffect(() => {
+    func();
+    console.log(classCabin);
+    console.log(selected);
+    console.log(N);
+  });
 
-}}
-useEffect(() => {
-  func();
-  console.log(classCabin);
-})
-  if (isBook)
-    return <Navigate to="/user" replace={true} state={{userID:_id}} />
+  if (isBook) return <Navigate to='/user/flights' replace={true} />;
 
-    return (
-      <Grid style={{ margin: "10em" }} container direction='column'>
-        {classCabin === "First" && <Grid item>First Seats</Grid>}
+  return (
+    <Grid
+      container
+      direction='row'
+      justify='center'
+      alignItems='center'
+      sx={{ placeContent: "center" }}>
+      <Grid
+        style={{ margin: "5em", width: "30%" }}
+        container
+        direction='column'>
+        <Typography variant='h4' style={{ margin: "1em" }}>
+          {flight.flightNumber}
+        </Typography>
+        {classCabin === "First" && (
+          <Grid item>
+            <Typography variant='h4'>First Seats</Typography>
+          </Grid>
+        )}
         <Grid container direction='column'>
-          {done &&
-            classCabin === "First" &&
-            first.map((seatArray) => {
-              var count = 0;
-              return (
-                <Grid container direction='row'>
-                  {" "}
-                  {seatArray.map((seat) => {
-                    if (count === 4) {
-                      count = 0;
-                      return (
-                        <>
-                          <Grid item>
-                            <CheckBoxOutlineBlankIcon fontSize='large' />
-                          </Grid>
-                          <Grid onClick={() => handleClick(seat)} item>
-                            {seat.reserved ? (
-                              <AirlineSeatReclineExtraIcon
-                                color='error'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            ) : selected.includes(seat.seatNumber) ? (
-                              <AirlineSeatReclineExtraIcon
-                                color='primary'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            ) : (
-                              <AirlineSeatReclineExtraIcon
-                                color='success'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            )}
-                          </Grid>
-                        </>
-                      );
-                    }
-                    count++;
-                    return (
-                      <Grid onClick={() => handleClick(seat)} item>
-                        {seat.reserved ? (
-                          <AirlineSeatReclineExtraIcon
-                            color='error'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        ) : selected.includes(seat.seatNumber) ? (
-                          <AirlineSeatReclineExtraIcon
-                            color='primary'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        ) : (
-                          <AirlineSeatReclineExtraIcon
-                            color='success'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        )}
-                      </Grid>
-                    );
-                  })}
-                </Grid>
-              );
-            })}
+          {done && classCabin === "First" && (
+            <SeatGrid
+              seats={first}
+              handleClick={handleClick}
+              selected={selected}
+            />
+          )}
         </Grid>
-        {classCabin === "Bus" && <Grid item>Business Seats</Grid>}
+        {classCabin === "Bus" && (
+          <Grid item>
+            <Typography variant='h4'>Business Seats</Typography>
+          </Grid>
+        )}
         <Grid container direction='column'>
-          {done &&
-            classCabin === "Bus" &&
-            business.map((seatArray) => {
-              var count = 0;
-              return (
-                <Grid container direction='row'>
-                  {" "}
-                  {seatArray.map((seat) => {
-                    if (count === 4) {
-                      count = 0;
-                      return (
-                        <>
-                          <Grid item>
-                            <CheckBoxOutlineBlankIcon fontSize='large' />
-                          </Grid>
-                          <Grid onClick={() => handleClick(seat)} item>
-                            {seat.reserved ? (
-                              <AirlineSeatReclineExtraIcon
-                                color='error'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            ) : selected.includes(seat.seatNumber) ? (
-                              <AirlineSeatReclineExtraIcon
-                                color='primary'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            ) : (
-                              <AirlineSeatReclineExtraIcon
-                                color='success'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            )}
-                          </Grid>
-                        </>
-                      );
-                    }
-                    count++;
-                    return (
-                      <Grid onClick={() => handleClick(seat)} item>
-                        {seat.reserved ? (
-                          <AirlineSeatReclineNormalIcon
-                            color='error'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        ) : selected.includes(seat.seatNumber) ? (
-                          <AirlineSeatReclineExtraIcon
-                            color='primary'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        ) : (
-                          <AirlineSeatReclineExtraIcon
-                            color='success'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        )}
-                      </Grid>
-                    );
-                  })}
-                </Grid>
-              );
-            })}
+          {done && classCabin === "Bus" && (
+            <SeatGrid
+              seats={business}
+              handleClick={handleClick}
+              selected={selected}
+            />
+          )}
         </Grid>
-        {classCabin === "Eco" && <Grid item>Economy Seats</Grid>}
+        {classCabin === "Eco" && (
+          <Grid item>
+            <Typography variant='h4'>Economy Seats</Typography>
+          </Grid>
+        )}
         <Grid container direction='column'>
-          {done &&
-            classCabin === "Eco" &&
-            economy.map((seatArray) => {
-              var count = 0;
-              return (
-                <Grid container direction='row'>
-                  {" "}
-                  {seatArray.map((seat) => {
-                    if (count === 4) {
-                      count = 0;
-                      return (
-                        <>
-                          <Grid item>
-                            <CheckBoxOutlineBlankIcon fontSize='large' />
-                          </Grid>
-                          <Grid onClick={() => handleClick(seat)} item>
-                            {seat.reserved ? (
-                              <AirlineSeatReclineExtraIcon
-                                color='error'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            ) : selected.includes(seat.seatNumber) ? (
-                              <AirlineSeatReclineExtraIcon
-                                color='primary'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            ) : (
-                              <AirlineSeatReclineExtraIcon
-                                color='success'
-                                fontSize='large'
-                                id={seat.seatNumber}
-                              />
-                            )}
-                          </Grid>
-                        </>
-                      );
-                    }
-                    count++;
-                    return (
-                      <Grid onClick={() => handleClick(seat)} item>
-                        {seat.reserved ? (
-                          <AirlineSeatReclineNormalIcon
-                            color='error'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        ) : selected.includes(seat.seatNumber) ? (
-                          <AirlineSeatReclineExtraIcon
-                            color='primary'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        ) : (
-                          <AirlineSeatReclineExtraIcon
-                            color='success'
-                            fontSize='large'
-                            id={seat.seatNumber}
-                          />
-                        )}
-                      </Grid>
-                    );
-                  })}
-                </Grid>
-              );
-            })}
+          {done && classCabin === "Eco" && (
+            <SeatGrid
+              seats={economy}
+              handleClick={handleClick}
+              selected={selected}
+            />
+          )}
         </Grid>
         <Grid item>
-          <Button onClick={handleSemiConfirm} variant='contained'>
-            Confirm Selection
-          </Button>
         </Grid>
-        <ConfirmFlightModal
-          openConfirm={openConfirm}
-          handleCloseConfirm={handleCloseConfirm}
-          setConfirmed={setConfirm}
-          handleCon={handleConfirm}
-        />
       </Grid>
-    );
+      {type === "roundtrip" && (
+        <Grid
+          style={{ margin: "5em", width: "30%" }}
+          container
+          direction='column'>
+          <Typography variant='h4' style={{ margin: "1em" }}>
+            {flightR.flightNumber}
+          </Typography>
+          {classCabin === "First" && (
+            <Grid item>
+              <Typography variant='h4'>First Class Seats</Typography>
+            </Grid>
+          )}
+          <Grid container direction='column'>
+            {done && classCabin === "First" && (
+              <SeatGrid
+                seats={firstR}
+                handleClick={handleClickR}
+                selected={selectedR}
+              />
+            )}
+          </Grid>
+          {classCabin === "Bus" && (
+            <Grid item>
+              <Typography variant='h4'>Business Seats</Typography>
+            </Grid>
+          )}
+          <Grid container direction='column'>
+            {done && classCabin === "Bus" && (
+              <SeatGrid
+                seats={businessR}
+                handleClick={handleClickR}
+                selected={selectedR}
+              />
+            )}
+          </Grid>
+          {classCabin === "Eco" && (
+            <Grid item>
+              <Typography variant='h4'>Economy Seats</Typography>
+            </Grid>
+          )}
+          <Grid container direction='column'>
+            {done && classCabin === "Eco" && (
+              <SeatGrid
+                seats={economyR}
+                handleClick={handleClickR}
+                selected={selectedR}
+              />
+            )}
+          </Grid>
+        </Grid>
+      )}
+      <ConfirmFlightModal
+        openConfirm={openConfirm}
+        handleCloseConfirm={handleCloseConfirm}
+        setConfirmed={setConfirm}
+        handleCon={handleConfirm}
+      />
+      <Grid>
+        <Button onClick={handleSemiConfirm} variant='contained' sx={{ mt: 3 }}>
+          Confirm Selection
+        </Button>
+      </Grid>
+    </Grid>
+  );
 }
 
-export default ViewSeats
+
+export default ViewSeats;

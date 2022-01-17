@@ -15,6 +15,7 @@ import BookingT from "./pages/BookingT";
 import BookingS from "./pages/BookingS";
 import Register from "./pages/Register";
 import ErrorPage from "./pages/ErrorPage";
+import Payment from "./pages/Payment";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
 import ReservedFlight from "./pages/ReservedFlightsDetails";
@@ -39,6 +40,7 @@ ReactDOM.render(
           <Route path='user/flights/itinerary' element={<ReservedFlight />} />
           <Route path='register' element={<Register />} />
           <Route element={<ErrorPage />} path='/error' />
+          <Route path='user/payment/:id' element={<Payment />} />
           <Route element={<ErrorPage />} path='*' />
         </Routes>
       </ThemeProvider>

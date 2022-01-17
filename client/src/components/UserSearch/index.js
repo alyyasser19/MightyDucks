@@ -52,7 +52,6 @@ function UserSearch({ search, user, checked, handleChangeChecked }) {
       alignItems='center'>
       <LocalizationProvider dateAdapter={DateAdapter}>
         <Paper
-          elevation={24}
           variant='outlined'
           sx={{ width: "60%", height: "17em", mt: "1em" }}>
           <Grid

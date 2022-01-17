@@ -5,6 +5,8 @@ import { Grid, Typography, CircularProgress } from "@mui/material";
 import UserSearch from "../../components/UserSearch";
 import SearchResults from "../../components/SearchResults";
 import { useLocation, useNavigate } from "react-router-dom";
+import jwt from "jsonwebtoken";
+
 function Home() {
   const Location = useLocation();
   const navigate = useNavigate();
@@ -21,7 +23,6 @@ function Home() {
 
   const handleChangeChecked = (event) => {
     setChecked(event.target.checked);
-
   };
 
   useEffect(() => {
@@ -29,29 +30,43 @@ function Home() {
     else setType("oneway");
 
     let token = localStorage.getItem("token");
-    if (token) {
-      axios
-        .post(
-          "http://localhost:8000/user/getUserByID",
-          {},
-          {
-            headers: {
-              "x-auth-token": token,
-            },
-          }
-        )
-        .then((res) => {
-          if (res.data) {
-            setUser(res.data);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
+
+    axios
+      .post("http://localhost:8000/user/verifyUser", {
+        token: token,
+      })
+      .then((response) => {
+        console.log(response.data);
+        if (token) {
+          axios
+            .post(
+              "http://localhost:8000/user/getUserByID",
+              {},
+              {
+                headers: {
+                  "x-auth-token": token,
+                },
+              }
+            )
+            .then((res) => {
+              if (res.data) {
+                setUser(res.data);
+                setLoading(false);
+              }
+            })
+            .catch((err) => {
+              setError(true);
+            });
+        } else {
+          setLoading(false);
           setError(true);
-        });
-    } else {
-      return navigate("/");
-    }
+        }
+      })
+      .catch((err) => {
+        setError(true);
+        setLoading(false);
+        return navigate("/");
+      });
   }, [Location, navigate, checked]);
 
   if (loading)
