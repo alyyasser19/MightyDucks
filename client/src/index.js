@@ -37,7 +37,7 @@ ReactDOM.render(
           <Route path='user/modify/:id' element={<EditProfile />} />
           <Route path='home/booking/roundtrip/:id' element={<BookingT />} />
           <Route path='home/booking/oneway/:id' element={<BookingS />} />
-          <Route path='user/flights/itinerary' element={<ReservedFlight />} />
+          <Route path='itinerary/:id' element={<ReservedFlight />} />
           <Route path='register' element={<Register />} />
           <Route element={<ErrorPage />} path='/error' />
           <Route path='user/payment/:id' element={<Payment />} />

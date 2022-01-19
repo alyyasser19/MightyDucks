@@ -100,6 +100,31 @@ export const ModifyBooking = async (req, res) => {
     res.status(200).send("Email sent");
 }
 
+export const mailItinerary = async (req, res) => {
+  const user = process.env.EMAIL;
+  const { email, name, flightNumber, from, to, seats, duration, price,departureDate, arrivalDate,fullClass } = req.body;
+  console.log(req.body);
+  const mailOptions = {
+    from: user,
+    to: email,
+    subject: "Flight Summary",
+    html: `<h1>Hello ${name}</h1>
+    <p>Your flight with flight ID ${flightNumber} has been booked, and you have paid ${price}$</p>
+    <p>your Flight is From ${from} to ${to}</p>
+    <p>Seats: ${seats}</p>
+    <p>Duration: ${duration}</p>
+    <p>Departure Date: ${departureDate}</p>
+    <p>Arrival Date: ${arrivalDate}</p>
+    <p>Class: ${fullClass}</p>
+    <p>Thank you for using our service</p>
+    <p>Regards,</p>
+    <p>Flight Booking Team</p>`
+  }
+  sendMail(mailOptions);
+  res.status(200).send("Email sent");
+}
+
+
 export const test = async (req, res) => {
   sendMail({
     from: process.env.EMAIL,

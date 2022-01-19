@@ -82,7 +82,7 @@ function UserFlightView() {
       <Grid
         container
         direction='column'
-        sx={{ width: "90%", alignItems: "center", mt: 10, ml: 15 }}>
+        sx={{ width: "90%", alignItems: "center", mt: 10, ml: 11 }}>
         {noFlights && (
           <Typography variant='h5' sx={{ color: "secondary.main" }}>
             No Flights Found
@@ -92,13 +92,13 @@ function UserFlightView() {
           Upcoming Flights
         </Typography>
         {upcoming.map((flight, index) => {
-          return <Ticket flight={flight} key={index}  />;
+          return <Ticket flights={flight} key={index}  />;
         })}
         <Typography variant='h5' sx={{ color: "secondary.main", mt: 5 }}>
           Past Flights
         </Typography>
         {past.map((flight, index) => {
-          return <Ticket flight={flight} key={index}  />;
+          return <Ticket flights={flight}  key={index}  />;
         })}
       </Grid>
     );

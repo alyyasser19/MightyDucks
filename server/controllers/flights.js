@@ -1,4 +1,5 @@
 import { flights } from "../models/flights.js";
+import User from "../models/user.js";
 import { compareDate } from "../API/compareDate.js";
 import axios from "axios";
 import moment from "moment";
@@ -182,67 +183,39 @@ export const getFlights = async (req, res) => {
 
 export const deleteFlight = async (req, res) => {
   if (req.body.flightNumber) {
-    const flightNumber = req.body.flightNumber;
-    if (flightNumber.charAt(flightNumber.length - 1) === "R") {
-      flights
-        .findOneAndDelete({ flightNumber: req.body.flightNumber })
-        .then(() => {
-          flights
-            .findOneAndDelete({
-              flightNumber: req.body.flightNumber.slice(0, -1),
-            })
-            .then((flight) => {
-              if (flight.subscribers.length > 0) {
-                for (let i = 0; i < flight.subscribers.length; i++) {
-                  axios
-                    .post(
-                      "http://localhost:8000/flight/unsubscribe",
-                      {
-                        _id: flight._id,
-                        subscriber: flight.subscribers[i],
-                      },
-                      {
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                      }
-                    )
-                    .catch((err) => console.log("Error: " + err));
+    flights
+      .findOneAndDelete({ flightNumber: req.body.flightNumber })
+      .then((flight) => {
+        if (flight.subscribers.length > 0) {
+          for (let i = 0; i < flight.subscribers.length; i++) {
+            User.findOne({
+              Email: flight.subscribers[i],
+            }).then((user) => {
+              if (user.flights.length > 0) {
+                for (let j = 0; j < user.flights.length; j++) {
+                  console.log(user.flights[j].flightNumber);
+                  console.log(flight.flightNumber);
+                  if (user.flights[j].flightNumber === flight.flightNumber) {
+                    axios.post("http://localhost:8000/mail/cancel", {
+                      email: user.Email,
+                      name: user.firstName + " " + user.lastName,
+                      flightID: flight.flightNumber,
+                      refund: user.flights[j].price,
+                    });
+                    user.flights.splice(j, 1);
+                    user.save();
+                    break;
+                  }
                 }
               }
-              res.status(200).json("Flight deleted successfully");
             });
-        })
-        .catch((err) => res.status(400).json("Error: " + err));
-    } else {
-      flights
-        .findOneAndDelete({ flightNumber: req.body.flightNumber })
-        .then(() => {
-          flights
-            .findOneAndDelete({ flightNumber: req.body.flightNumber + "R" })
-            .then((flight) => {
-              if (flight.subscribers.length > 0) {
-                for (let i = 0; i < flight.subscribers.length; i++) {
-                  axios
-                    .post(
-                      "http://localhost:8000/flight/unsubscribe",
-                      {
-                        _id: flight._id,
-                        subscriber: flight.subscribers[i],
-                      },
-                      {
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                      }
-                    )
-                    .catch((err) => console.log("Error: " + err));
-                }
-              }
-              res.status(200).json("Flight deleted");
-            });
-        });
-    }
+          }
+        }
+      })
+      .then(() => {
+        res.status(200).json("Flight deleted successfully");
+      })
+      .catch((err) => res.status(400).json("Error: " + err));
   }
 };
 
@@ -528,8 +501,6 @@ export const subscribeFlightSingle = async (req, res) => {
   });
 };
 
-
-
 // export const unsubscribeFlight = async (req, res) => {
 //   const subscriber = req.body.subscriber;
 //   let subscribers;
@@ -740,7 +711,6 @@ export const unsubscribeFlightSingle = async (req, res) => {
     }
   });
 };
-
 
 export const getFlight = async (req, res) => {
   if (req.body._id) {

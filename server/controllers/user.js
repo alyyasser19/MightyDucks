@@ -444,7 +444,7 @@ export const addSingleFlightUser = async (req, res) => {
     if (curUser) {
       //get objects
       const seatTo = req.body.seats[0].split(",");
-      const priceTo = seatTo[3];
+      const priceTo = seatTo[3] * req.body.seats.length;
       const cabinClassTo = seatTo[1];
       const flightNumberTo = req.body.flightNumber;
       const bookingNumber = req.body.bookingNumber;
@@ -701,7 +701,13 @@ export const getFlightsUser = async (req, res) => {
             .then((response) => {
               if (response.data.length === 0) {
               } else {
+                response.data.curSeats = curUser.flights[flight].seat;
+                response.data.curPrice = curUser.flights[flight].price;
+                response.data.curBaggage = curUser.flights[flight].baggage;
+                response.data.email = curUser.Email;
+                response.data.name =curUser.firstName + " " + curUser.lastName;
                 flights.push(response.data);
+                console.log(flights.curSeats);
               }
             })
             .catch((err) => res.status(400).json("Invalid Input!"));
