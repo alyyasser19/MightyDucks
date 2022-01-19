@@ -76,7 +76,34 @@ function Login() {
         setError(true);
       });
   };
-  const handleForget = () => {};
+  const handleForget = () => {
+      setLoading(true);
+      axios
+        .post("http://localhost:8000/user/login", {
+          Username: "Guest",
+          Password: "Guest",
+        })
+        .then((res) => {
+          if (res.data) {
+            localStorage.setItem("token", res.data.token);
+            console.log(res.data.user);
+            setUserInfo(res.data.user);
+
+            setError(false);
+            if (res.data.user.Type === "A") setAuthorizedAdmin(true);
+            else setAuthorizedUser(true);
+            console.log(authorizedAdmin, authorizedUser);
+            setLoading(false);
+          } else {
+            setLoading(false);
+            setError(true);
+          }
+        })
+        .catch((err) => {
+          setLoading(false);
+          setError(true);
+        });
+  };
 
   if (loggedIn)
     return <Navigate to="/home" replace={true} />;
@@ -251,7 +278,7 @@ function Login() {
                   color: "white.main",
                 }}
                 onClick={handleForget}>
-                FORGOT PASSWORD?
+                CONTINUE AS GUEST
               </Button>
             </Grid>
           </form>

@@ -32,6 +32,7 @@ export default function Navbar(props) {
   const [user, setUser] = React.useState("");
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [curUser, setCurUser] = React.useState({});
+  const [guest, setGuest] = React.useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -47,6 +48,10 @@ export default function Navbar(props) {
         .then((res) => {
           setAuth(true);
           setCurUser(res.data);
+          if (res.data.Username === "Guest")
+            setGuest(true);
+          else setGuest(false);
+
           if (res.data.Type==="A") {
             setAdmin(true);
           }
@@ -80,7 +85,7 @@ export default function Navbar(props) {
             <Link to={admin ? "admin" : "home"}>
               <Logo />
             </Link>
-            {normal && auth && (
+            {normal && auth && !guest && (
               <Grid
                 container
                 justify='flex-end'
@@ -151,12 +156,38 @@ export default function Navbar(props) {
                 </Button>
               </Grid>
             )}
+            {guest && (
+              <Grid
+                container
+                justify='flex-end'
+                alignItems='center'
+                sx={{ ml: 2 }}>
+                <Button
+                  onClick={() => {
+                    localStorage.removeItem("token");
+                    setAuth(false);
+                    navigate("/", { replace: true });
+                  }}
+                  variant='text'
+                  size='large'
+                  color='menuItem'
+                  sx={{
+                    width: "20em",
+                    display: {
+                      xs: "none",
+                      md: "block",
+                    },
+                  }}>
+                  LOGIN
+                </Button>
+              </Grid>
+            )}
             <Grid
               container
               justify='flex-end'
               sx={{ justifyContent: "end", gap: "2em" }}
               alignItems='center'>
-              {auth && (
+              {auth && !guest && (
                 <div>
                   <Link to='user'>
                     <IconButton

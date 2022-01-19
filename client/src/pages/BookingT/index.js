@@ -32,6 +32,7 @@ function Booking() {
   const [cabin, setCabin] = React.useState("");
   const [fees, setFees] = React.useState(0);
   const [seats, setSeats] = React.useState(false);
+  const[guest,setGuest]=React.useState(false)
   
   
   let departureFlightNumber = departureFlight.flightNumber;
@@ -100,7 +101,9 @@ function Booking() {
         "x-auth-token": localStorage.getItem("token")
       }
           })
-          .then((res) => {
+      .then((res) => {
+              if (res.data.Username === "Guest") setGuest(true);
+              else setGuest(false);
               if(res.data){
                 setUserInfo(res.data);
               }}
@@ -550,19 +553,35 @@ function Booking() {
                 </Typography>
               </Grid>
             </Paper>
-            <Button
-              variant='contained'
-              sx={{
-                width: "40%",
-                backgroundColor: "#C8655D",
-                fontSize: "1em",
-                mt: "2em",
-              }}
-              onClick={() => {
-                setSeats(true);
-              }}>
-              Select Seats
-            </Button>
+            {!guest && (
+              <Button
+                variant='contained'
+                sx={{
+                  width: "40%",
+                  backgroundColor: "#C8655D",
+                  fontSize: "1em",
+                  mt: "2em",
+                }}
+                onClick={() => {
+                  setSeats(true);
+                }}>
+                Select Seats
+              </Button>
+            )}
+            {guest && (
+              <Typography
+                variant='h6'
+                sx={{
+                  fontSize: "1.5em",
+                  color: "#000000",
+                  textAlign: "left",
+                  gap: "2em",
+                  mt: "0.75em",
+                  ml: "1.5em",
+                }}>
+                LOGIN TO BOOK
+              </Typography>
+            )}
             <ConfirmFlightModal
               openConfirm={openConfirm}
               handleCloseConfirm={handleCloseConfirm}
