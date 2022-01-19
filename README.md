@@ -77,6 +77,11 @@ Runs just the server in development mode.<br>
 Builds the app for production to the `build` folder.<br>
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
+![DuckyLines Login](DL.png)
+
+![DuckyLines FlightSearch](DL2.png)
+
+![DuckyLines UserProfile](DL3.png)
 
 ## Features
 - Reserve flights both oneway and roundtrip.
@@ -96,10 +101,6 @@ It correctly bundles React in production mode and optimizes the build for the be
 - Providing user with all combinations for flights (departure and return) based on their chosen criteria.
 - consistent theme, brand and color palette.
 
-
-![DuckyLines Login](DL.png)
-![DuckyLines FlightSearch](DL2.png)
-![DuckyLines UserProfile](DL3.png)
 
 ## Libraries and APIs
 
