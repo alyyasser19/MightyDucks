@@ -16,6 +16,8 @@ import formatDate from "../../API/formatDate";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 import { toast } from "react-toastify";
+import AirplaneTicketIcon from "@mui/icons-material/AirplaneTicket";
+import UpdateSeats from "../UpdateSeats"
 
 function FlightDetails() {
   const location = useLocation();
@@ -37,6 +39,7 @@ function FlightDetails() {
   const [seatString, setSeatString] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+  const [seatUpdate, setSeatUpdate] = useState(false);
 
 
 
@@ -160,7 +163,8 @@ function FlightDetails() {
   }
   return (
     <>
-      <Grid container direction='row' wrap='nowrap' sx={{ mt: 10 }}>
+      {!seatUpdate ?
+      (  <Grid container direction='row' wrap='nowrap' sx={{ mt: 10 }}>
         <Grid
           container
           direction='column'
@@ -478,6 +482,15 @@ function FlightDetails() {
           </Button>
           <Button
             variant='contained'
+            endIcon={<AirplaneTicketIcon />}
+            sx={{ width: "70%", placeSelf: "center", mt: "1em" }}
+            onClick={() => {
+              setSeatUpdate(true)
+            }}>
+            update Seats
+          </Button>
+          <Button
+            variant='contained'
             color='secondary'
             endIcon={<DeleteIcon />}
             sx={{ width: "70%", placeSelf: "center", mt: "1em" }}
@@ -508,7 +521,10 @@ function FlightDetails() {
             Delete Flight
           </Button>
         </Grid>
-      </Grid>
+        </Grid>):
+     ( <UpdateSeats flight={flight} seatsSelected={seats} classCabin={cabinClass} N={seats.length}  />
+      )
+      }
     </>
   );
 }
