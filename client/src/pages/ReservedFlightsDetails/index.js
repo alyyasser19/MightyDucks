@@ -108,41 +108,45 @@ function FlightDetails() {
         });
     }
     else {
-      console.log(flight);
-      setBaggage(flight.curBaggage);
-      setPrice(flight.curPrice);
-      setSeats(flight.curSeats);
-      setFrom(flight.from);
-      setTo(flight.to);
-      setDepartureDate(flight.departureTime);
-      setArrivalDate(flight.arrivalTime);
-      setFlightNumber(flight.flightNumber);
-      setDuration(flight.duration);
-      setEmail(flight.email);
-      setName(flight.name);
+      if (!flight || baggage === 0 || price === 0 || seats.length === 0 || from === "" || to === "" || departureDate === "" || arrivalDate === "" || flightNumber === "" || duration === "" || fullClass === "empty" || seatString === "" || email === "" || name === "") {
+        console.log(flight);
+        setBaggage(flight.curBaggage);
+        setPrice(flight.curPrice);
+        setSeats(flight.curSeats);
+        setFrom(flight.from);
+        setTo(flight.to);
+        setDepartureDate(flight.departureTime);
+        setArrivalDate(flight.arrivalTime);
+        setFlightNumber(flight.flightNumber);
+        setDuration(flight.duration);
+        setEmail(flight.email);
+        setName(flight.name);
 
-      let curString = "";
-      let curClass = "";
-      if(seatString === "")
-      for (let i = 0; i < seats.length; i++) {
-        console.log(seats[i]);
-        let seat = seats[i].split(",");
-        curClass = seat[1];
-        curString = curString.concat(seat[0] + " ");
+        console.log("gere");
+        let curString = "";
+        let curClass = "";
+        for (let i = 0; i < seats.length; i++) {
+          console.log(seats[i]);
+          let seat = seats[i].split(",");
+          curClass = seat[1];
+          curString = curString.concat(seat[0] + " ");
+        }
+        setCabinClass(curClass);
+        setSeatString(curString);
+
+        if (cabinClass === "Eco")
+          setFullClass("Economy");
+        else if (cabinClass === "Bus")
+          setFullClass("Business");
+        else if (cabinClass === "First")
+          setFullClass("First Class");
+        
       }
-      setCabinClass(curClass);
-      setSeatString(curString);
-
-      if (cabinClass === "Eco")
-        setFullClass("Economy");
-      else if (cabinClass === "Bus")
-        setFullClass("Business");
-      else if (cabinClass === "First")
-        setFullClass("First Class");
-          setLoading(false);
+      else
+        setLoading(false);
     }
 
-  }, [flight]);
+  }, [flight,baggage,price,seats,from,to,departureDate,arrivalDate,flightNumber,duration,cabinClass,fullClass,seatString,email,name,navigate,location]);
 
   if (loading) {
     return (
@@ -377,8 +381,8 @@ function FlightDetails() {
                   mt: "1.3em",
                   ml: "1.5em",
                 }}>
-                {fullClass} | {baggage} {baggage === 1 ? "Bag" : "Bags"} /
-                Person | 23KG/Bag
+                {fullClass} | {flight.curBaggage}{" "}
+                {flight.curBaggage === 1 ? "Bag" : "Bags"} / Person | 23KG/Bag
               </Typography>
             </Grid>
           </Paper>
@@ -430,7 +434,7 @@ function FlightDetails() {
                   mt: "1em",
                   ml: "1.9em",
                 }}>
-                Total Price: {price}$
+                Total Price: {flight.curPrice}$
               </Typography>
               <Typography
                 variant='h6'
@@ -452,23 +456,24 @@ function FlightDetails() {
             endIcon={<SendIcon />}
             sx={{ width: "70%", placeSelf: "center", mt: "1em" }}
             onClick={() => {
-              axios.post("http://localhost:8000/mail/Itinerary", {
-                from,
-                to,
-                departureDate,
-                arrivalDate,
-                duration,
-                fullClass,
-                price,
-                email,
-                name,
-                flightNumber,
-                seats: seats.toString(),
-              }).then((res) => {
-                toast.success("Email sent successfully!");
-              })
-            }}
-          >
+              axios
+                .post("http://localhost:8000/mail/Itinerary", {
+                  from,
+                  to,
+                  departureDate,
+                  arrivalDate,
+                  duration,
+                  fullClass,
+                  price: flight.curPrice,
+                  email,
+                  name,
+                  flightNumber,
+                  seats: seats.toString(),
+                })
+                .then((res) => {
+                  toast.success("Email sent successfully!");
+                });
+            }}>
             Mail itinerary
           </Button>
           <Button
