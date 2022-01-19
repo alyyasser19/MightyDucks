@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { deleteUser, getUser,getUserByID ,getUsers, searchUsers, addUser, updateUser, addFlightUser,deleteFlightUser, getFlightsUser, searchFlights, loginUser,addPhone, deletePhone, changePassword, addSingleFlightUser, deleteSingleFlightUser, verifyUser, handlePayment } from '../controllers/user.js';
+import { deleteUser, getUser,getUserByID ,getUsers, searchUsers, addUser, updateUser, addFlightUser,deleteFlightUser, getFlightsUser, searchFlights, loginUser,addPhone, deletePhone, changePassword, addSingleFlightUser, deleteSingleFlightUser, verifyUser, handlePayment, updateSeats } from '../controllers/user.js';
 import auth from '../API/auth.js';
 
 
@@ -25,6 +25,7 @@ router.post("/addSingleFlight", auth, addSingleFlightUser);
 router.post("/deleteSingleFlight", auth, deleteSingleFlightUser);
 router.post("/verifyUser", verifyUser);
 router.post("/payment", handlePayment);
+router.post("/updateSeats", auth, updateSeats);
 
 
 export default router; 

@@ -1,4 +1,5 @@
 import user from "../models/user.js";
+import Flightdb from "../models/flights.js";
 import axios from "axios";
 import bcrypt from "bcrypt";
 import validator from "validator";
@@ -991,3 +992,49 @@ export const handlePayment = async (req, res) => {
 		})
 	}
 }
+
+export const updateSeats = async (req, res) => {
+  let id = req.user._id;
+  user.findById(id).then((curUser) => {
+          for (let i = 0; i < curUser.flights.length; i++) {
+            if (curUser.flights[i].flightNumber === req.body.flightNumber) {
+              const flight = curUser.flights[i]
+              flight.seat = req.body.selectedSeats
+              curUser.flights.splice(i, 1, flight)
+              curUser.flights[i].seat = req.body.selectedSeats
+              curUser.save();
+            }
+          }
+    Flightdb.findOne({ flightNumber: req.body.flightNumber }).then((curFlight) => {
+      const seats = curFlight.seats;
+      const selectedSeats = req.body.selectedSeats;
+      const prevSeats = req.body.preSeats
+      for (let i = 0; i < selectedSeats.length; i++){
+        const curSeat = selectedSeats[i].split(",");
+        const prevSeat = prevSeats[i].split(",");
+        for (let j = 0; j < seats.length; j++){
+          const flightSeat = seats[j].split(",");
+          if(flightSeat[0] === curSeat[0] && flightSeat[1] === curSeat[1]){
+            flightSeat[2] = "R";
+            curFlight.seats.splice(j, 1, flightSeat.toString());
+          }
+          if(flightSeat[0] === prevSeat[0] && flightSeat[1] === prevSeat[1] && !selectedSeats.includes(prevSeats[i])){
+            flightSeat[2] = "N";
+            curFlight.seats.splice(j, 1, flightSeat.toString());
+          }
+        }
+      }
+      curFlight.save();
+      res.status(200).json("Seats updated!");
+    }).catch((err) => {
+      res.status(400).json("Error updating seats!");
+      console.log(err);
+    }
+    ).catch((err) => {
+      res.status(400).json("Error updating seats!");
+      console.log(err);
+    }
+    );
+  });
+};
+ 
