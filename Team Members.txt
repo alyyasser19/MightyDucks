@@ -1,0 +1,80 @@
+SCRUM MASTER: Aly Yasser
+
+Sprint 1:
+-Initialized express server
+-Created the databases
+-Finished brand identity
+-Designed admin dashboard and homepage
+-Handled exceptions and overlooked cases
+
+Sprint 2:
+-Made changes to the database
+-Handled making any reservations according to search criteria
+-Handled cancelling reservations
+-Hanadled emailing passengers with cancellations made and the refund
+
+Farida Samer
+
+Sprint 1:
+-Added filters to searching for flights
+-Added restrictions to the databases
+-Post requests for deleting flights and users and for searching for flight
+-Added progress feedback to search flight
+
+Sprint 2:
+-Designed Userprofile page and editprofile component
+-Designed the user search component
+-Added choosing seat for a flight in frontend
+
+Mariam Mowafy
+
+Sprint 1:
+-Created post requests for adding flights and users
+-Created post requests for updating flights and users
+-Populated the database
+-Handled flight selections with all their criteria
+
+Sprint 2:
+-Designed the itinerary component
+-Designed the flight ticket component
+-Handled viewing flights
+
+Omar Nahtawy
+
+Sprint 1:
+-Populated the database
+-Added errors banners in frontend
+
+Sprint 2:
+-Formatted the date in frontend
+-Added validations
+-Made updates to frontend
+-Handled search on the user side
+
+----------------------------------------------------------------------------------
+
+Sprint 3: 
+
+Tasks in this sprint were a collaborative effort which were:
+
+-User registration
+-User login
+-Authentication using JWT
+-Provided a way for guest users to search for flights
+-Method of changing passwords
+-Implementing the search to accomodate for both round trip and one-way trips
+-Viewing departure flights
+-Viewing return flights
+-Viewing all available seats in the selected cabin
+-Selecting departure flight with the correct number seats and correct cabin
+-Viewing all available seats in the selected cabin for departure
+-Selecting return flight with the correct number seats and correct cabin
+-Viewing all available seats in the selected cabin for return
+-Confirmation of selecting a flight
+-Payment using Stripe API
+-Emailing any changes with the itinerary
+-Allowing users to change seats
+-Providing a way to cancel a reservation and get a refund
+-Providing a way to choose a different return flight
+-Providing a way for the user to email him/herself the itinerary 
+
