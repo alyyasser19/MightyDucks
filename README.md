@@ -77,12 +77,6 @@ Runs just the server in development mode.<br>
 Builds the app for production to the `build` folder.<br>
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
-![DuckyLines Login](DL.png)
-
-![DuckyLines FlightSearch](DL2.png)
-
-![DuckyLines UserProfile](DL3.png)
-
 ## Features
 - Reserve flights both oneway and roundtrip.
 - Create and edit user Info.
@@ -119,3 +113,10 @@ It correctly bundles React in production mode and optimizes the build for the be
 - #### `JWT`          - https://jwt.io/introduction
 - #### `Validator`    - https://express-validator.github.io/docs/
 - #### `Nodemon`      - https://jwt.io/introduction
+
+## Screenshots
+![DuckyLines Login](DL.png)
+
+![DuckyLines FlightSearch](DL2.png)
+
+![DuckyLines UserProfile](DL3.png)
